@@ -148,12 +148,12 @@ def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, descript
     looks = "\n".join(f'      <button type="button" class="look look-{look}" data-look="{look}" aria-pressed="false" '
                       f'aria-label="{s("looks." + look)}" title="{s("looks." + look)}"></button>' for look in LOOKS)
     customize = ""
-    scripts = ""
+    scripts = f'<script type="module" src="{asset_url("js/flow.js")}"></script>\n'   # the line drifting behind every page
     if companions is not None:
         customize = (f'<button type="button" class="linkish" data-companions-menu>{s("footer.customize")}</button>')
         config = json.dumps(companions, ensure_ascii=False).replace("</", "<\\/")
-        scripts = (f'<script type="application/json" id="companions-config">{config}</script>\n'
-                   f'<script type="module" src="{asset_url("js/companions.js")}"></script>\n')
+        scripts += (f'<script type="application/json" id="companions-config">{config}</script>\n'
+                    f'<script type="module" src="{asset_url("js/companions.js")}"></script>\n')
     return f"""<!doctype html>
 <html lang="{lang}" data-page="{page}">
 <head>
@@ -161,9 +161,8 @@ def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, descript
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{title}</title>
 <meta name="description" content="{description}">
-{robots}<meta name="color-scheme" content="light dark">
-<meta name="theme-color" content="#ecedf2" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#050507" media="(prefers-color-scheme: dark)">
+{robots}<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#050507">
 <link rel="canonical" href="{base}{PAGES[page][lang]}">
 {alternates}<link rel="alternate" hreflang="x-default" href="{base}/">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -227,7 +226,7 @@ def page_home(lang: str, s: Strings, site: dict, count: int, apps: list[dict]) -
       <div role="document"><h2 class="eyebrow" id="current-title">{s('projects.title')}</h2></div>
       <ul class="projects">
         {project('aresos', 'building')}
-        {project('apps', 'waiting')}
+        {project('apps', 'available')}
         {project('companions', 'building')}
       </ul>
     </section>
@@ -282,8 +281,7 @@ def page_apps(lang: str, s: Strings, site: dict, apps: list[dict]) -> str:
         if app["availability"] == "request":
             action = f'<a class="btn primary accent" href="{contact}">{s("apps.request")}{ICONS["arrow"]}</a>'
         elif app["availability"] == "personal":
-            action = (f'<p class="personal"><span class="status">{s("apps.personal")}</span> '
-                      f'<span class="note">{s("apps.personalNote")}</span></p>')
+            action = f'<p class="personal"><span class="status">{s("apps.personal")}</span></p>'
         else:
             raise BuildError(f"apps.json: {app['id']} has an unknown availability '{app['availability']}'")
         repo = (f'<a class="btn" href="{esc(app["repo"])}" rel="noopener">{ICONS["github"]}{s("apps.repo")}</a>'
@@ -305,7 +303,6 @@ def page_apps(lang: str, s: Strings, site: dict, apps: list[dict]) -> str:
     <h1>{s('apps.title')}</h1>
     <p class="lead">{s('apps.lead')}</p>
     <ul class="chips">{shared}</ul>
-    <p class="state">{s('apps.state')}</p>
   </header>
   <div class="app-list">
 {chr(10).join(cards)}
@@ -332,12 +329,11 @@ def page_legal(lang: str, which: str, site: dict) -> str:
 
 
 def apps_css(apps: list[dict]) -> str:
-    """Each app's accent: its light one in the light look, its dark one in the dark and red looks (a file, since the
-    site allows no inline styles)."""
-    light = "".join(f".app--{a['id']} {{ --accent: {a['accent']['light']}; }}\n" for a in apps)
-    dark = "".join(f":root:is([data-theme=\"dark\"], [data-theme=\"red\"]) .app--{a['id']} {{ --accent: {a['accent']['dark']}; }}\n"
-                   for a in apps)
-    return f"/* Made by build.py from content/apps.json. */\n{light}{dark}"
+    """Each app's accent: its dark one in the dark and red looks (dark is the default), its light one in the light look
+    (a file, since the site allows no inline styles)."""
+    dark = "".join(f".app--{a['id']} {{ --accent: {a['accent']['dark']}; }}\n" for a in apps)
+    light = "".join(f":root[data-theme=\"light\"] .app--{a['id']} {{ --accent: {a['accent']['light']}; }}\n" for a in apps)
+    return f"/* Made by build.py from content/apps.json. */\n{dark}{light}"
 
 
 # ---------- the build ----------

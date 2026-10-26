@@ -1,17 +1,28 @@
 {
-  "lang": { "name": "Deutsch", "short": "DE", "switchTo": "Auf Deutsch" },
+  "lang": {
+    "name": "Deutsch",
+    "short": "DE",
+    "switchTo": "Auf Deutsch"
+  },
   "meta": {
     "homeTitle": "Patrik Breeck",
     "homeDescription": "Patrik Breeck: Wirtschaftsinformatik-Student an der TUM, tätig bei Munich Re, entwickelt nebenbei iPhone-Apps und Software.",
     "appsTitle": "Ares-Apps · Patrik Breeck",
-    "appsDescription": "Native iPhone-Apps von Patrik Breeck: Aresium, Arestemis, Arestoteles und Aresus.",
+    "appsDescription": "Native iPhone-Apps von Patrik Breeck, gebaut in Swift, mit Servern in der EU.",
     "imprintTitle": "Impressum · Patrik Breeck",
     "privacyTitle": "Datenschutzerklärung · Patrik Breeck"
   },
-  "nav": { "home": "Patrik Breeck" },
-  "looks": { "label": "Darstellung", "light": "Hell", "dark": "Dunkel", "red": "Rot und Gold" },
+  "nav": {
+    "home": "Patrik Breeck"
+  },
+  "looks": {
+    "label": "Darstellung",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "red": "Rot und Gold"
+  },
   "home": {
-    "lead": "Wirtschaftsinformatik-Student an der TUM, tätig bei Munich Re. Nebenbei entwickle ich Software, von iPhone-Apps, die alle ausprobieren und mit Feature-Wünschen mitgestalten können, bis zu den Pixel-Companions auf dieser Seite.",
+    "lead": "Wirtschaftsinformatik-Student an der TUM, tätig bei Munich Re. Nebenbei entwickle ich Software: Apps, Tools und ein KI-natives Betriebssystem. Die iPhone-Apps können alle ausprobieren und mit Feature-Wünschen mitgestalten, und die Pixel-Companions auf dieser Seite stammen ebenfalls von mir.",
     "links": "Links",
     "appsTitle": "iPhone-Apps",
     "appsSub": "Ausprobieren, Features wünschen",
@@ -23,13 +34,13 @@
     "aresosName": "AresOS",
     "aresos": "KI-natives Betriebssystem, das den ganzen Computer aus Minecraft heraus steuert.",
     "appsName": "Ares-Apps",
-    "apps": "Native iPhone-Apps für Finanzen, Wohnungssuche, Wissen und Server-Monitoring, mit einem gemeinsamen Konto.",
+    "apps": "Native iPhone-Apps für Finanzen, Wohnungssuche, ein persönliches Wiki und Infrastruktur-Monitoring, mit einem gemeinsamen Konto.",
     "companionsName": "Companions",
     "companions": "{count} animierte Pixel-Figuren für jeden Bildschirm, jede mit eigenen Moves, Skins und Outfits."
   },
   "status": {
     "building": "In Entwicklung",
-    "waiting": "Bald auf TestFlight"
+    "available": "Verfügbar"
   },
   "footer": {
     "imprint": "Impressum",
@@ -38,13 +49,16 @@
   },
   "apps": {
     "title": "Ares-Apps",
-    "lead": "Native SwiftUI-Apps fürs iPhone: Finanzen, Wohnungssuche, eine Wissenssammlung und Server-Monitoring. Jede spricht Deutsch und Englisch, kommt hell und dunkel und teilt sich ein Konto mit den anderen.",
-    "state": "Fertig gebaut und getestet. Verfügbar über TestFlight, sobald Apple das Entwicklerkonto freigibt; alle sind eingeladen, sie auszuprobieren und sich Features zu wünschen.",
-    "shared": ["Deutsch und Englisch", "Hell und dunkel", "Ein gemeinsames Konto"],
+    "lead": "Native iPhone-Apps, gebaut in Swift, mit Servern in der EU.",
+    "shared": [
+      "Keine Werbung, kein Tracking",
+      "Ein Konto für alle Apps",
+      "Deutsch und Englisch",
+      "Hell und dunkel"
+    ],
     "request": "Zugang anfragen",
-    "requestNote": "Zugang auf Anfrage: Jede Anfrage wird persönlich geprüft und mit einer TestFlight-Einladung beantwortet.",
-    "personal": "Vorerst für den persönlichen Gebrauch",
-    "personalNote": "Noch nicht für Anfragen offen.",
+    "requestNote": "Zugang auf Anfrage: Jede Anfrage wird persönlich geprüft und mit einem Installationslink beantwortet.",
+    "personal": "Private App",
     "repo": "Code auf GitHub",
     "shotAlt": "{name} auf dem iPhone",
     "privacy": "Datenschutzerklärung der Apps"
@@ -68,16 +82,51 @@
     "reset": "Zurücksetzen",
     "footer": "Companions: animierte Pixel-Figuren für jeden Bildschirm, in Entwicklung. Der Code wird auf GitHub veröffentlicht.",
     "repo": "Companions auf GitHub",
-    "groups": { "Originals": "Originale", "Apps": "Apps", "Mascots": "Maskottchen", "Minecraft": "Minecraft", "Others": "Weitere" },
+    "groups": {
+      "Originals": "Originale",
+      "Apps": "Apps",
+      "Mascots": "Maskottchen",
+      "Minecraft": "Minecraft",
+      "Others": "Weitere"
+    },
     "skins": {
-      "original": "Original", "red": "Rot", "blue": "Blau", "green": "Grün", "white": "Weiß", "black": "Schwarz",
-      "yellow": "Gelb", "magenta": "Magenta", "rainbow": "Regenbogen", "sparkle": "Glitzer", "gold": "Gold",
-      "enchanted": "Verzaubert", "diamond": "Diamant", "lava": "Lava", "galaxy": "Galaxie", "aurora": "Polarlicht"
+      "original": "Original",
+      "red": "Rot",
+      "blue": "Blau",
+      "green": "Grün",
+      "white": "Weiß",
+      "black": "Schwarz",
+      "yellow": "Gelb",
+      "magenta": "Magenta",
+      "rainbow": "Regenbogen",
+      "sparkle": "Glitzer",
+      "gold": "Gold",
+      "enchanted": "Verzaubert",
+      "diamond": "Diamant",
+      "lava": "Lava",
+      "galaxy": "Galaxie",
+      "aurora": "Polarlicht"
     },
     "outfits": {
-      "none": "Nichts", "tophat": "Zylinder", "crown": "Krone", "party": "Partyhut", "nightcap": "Schlafmütze", "fedora": "Fedora",
-      "suit": "Anzug mit Krawatte", "hoodie": "Hoodie", "cape": "Superheldenumhang", "armor": "Diamantrüstung", "scarf": "Schal", "chain": "Goldkette"
+      "none": "Nichts",
+      "tophat": "Zylinder",
+      "crown": "Krone",
+      "party": "Partyhut",
+      "nightcap": "Schlafmütze",
+      "fedora": "Fedora",
+      "suit": "Anzug mit Krawatte",
+      "hoodie": "Hoodie",
+      "cape": "Superheldenumhang",
+      "armor": "Diamantrüstung",
+      "scarf": "Schal",
+      "chain": "Goldkette"
     },
-    "sizes": { "-2": "Winzig", "-1": "Klein", "0": "Normal", "1": "Groß", "2": "Riesig" }
+    "sizes": {
+      "-2": "Winzig",
+      "-1": "Klein",
+      "0": "Normal",
+      "1": "Groß",
+      "2": "Riesig"
+    }
   }
 }

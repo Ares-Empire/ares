@@ -9,6 +9,8 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
 - **Tone: a business card** (Patrik, 2026-10-26: coworkers, hiring managers and partners read it). Short,
   professional, little "I/my"; project lines say what the thing is, with a little selling ("AI-native operating
   system that runs the whole computer from inside Minecraft"). No in-jokes or pseudonym lines ("aka Ares" was cut).
+  **The site presents, it doesn't report** (Patrik, 2026-10-26): never mention internal limitations (Apple's review,
+  TestFlight waiting, "personal use for now", features still being built); the apps are shown as ready.
 - **Nothing from other hosts**, no analytics, no cookies. Fonts and files are served from here. The Caddy block
   sends a Content-Security-Policy (`'self'` only, no inline scripts or styles): put styles in CSS files, data for
   scripts in `<script type="application/json">`, and set styles from JS through `element.style`.
@@ -17,7 +19,9 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
   a change goes to both. If the site starts processing something new (a form, an embed, a log), the privacy policy
   changes first, in both languages.
 - **Looks:** three, switched in the header (`static/js/theme.js` sets `data-theme` on `<html>`; every colour is a token
-  per look at the top of `site.css`). Light and dark are the Ares apps' look (Aresium's website, `empire-ios`
+  per look at the top of `site.css`). **Dark is the default** for every first visit, whatever the system says (Patrik,
+  2026-10-26). Behind every page drifts one calm line of light (`static/js/flow.js`, colours `--flow-*` per look): keep
+  it slow and faint, never a show. Light and dark are the Ares apps' look (Aresium's website, `empire-ios`
   Shared/Design): glass cards, Space Grotesk, ink accents, a faint red and blue light. Red is red and gold: a
   wine-black wall lit crimson, gold-edged glass, the name in the Empire's gold text with one shine. Simple, clean and
   professional first (Patrik, 2026-10-26); the apps bring their own accents. A new colour gets a token in all three.

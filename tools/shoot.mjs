@@ -17,7 +17,7 @@ for (const v of views) {
   for (const look of looks) {
     const auth = process.env.SITE_AUTH?.split(':');
     const ctx = await browser.newContext({ ...v, colorScheme: look === 'light' ? 'light' : 'dark', ...(auth ? { httpCredentials: { username: auth[0], password: auth.slice(1).join(':') } } : {}) });
-    if (look === 'red') await ctx.addInitScript(() => localStorage.setItem('look', 'red'));   // red is only ever chosen
+    await ctx.addInitScript(l => localStorage.setItem('look', l), look);   // as if the visitor picked it
     const page = await ctx.newPage();
     const errors = [];
     page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') errors.push(`${m.type()}: ${m.text()}`); });
@@ -26,7 +26,7 @@ for (const v of views) {
     page.on('response', r => { if (r.status() >= 400) errors.push(`${r.status()}: ${r.url()}`); });
     for (const p of pages) {
       await page.goto(base + p, { waitUntil: 'networkidle' });
-      await page.waitForTimeout(p.match(/^\/(en|de)\/$/) ? 5000 : 600);
+      await page.waitForTimeout(Number(process.env.WAIT) || (p.match(/^\/(en|de)\/$/) ? 5000 : 600));
       const file = `${out}/${v.name}-${look}${p.replace(/\//g, '_')}.png`;
       await page.screenshot({ path: file, fullPage: true });
     }

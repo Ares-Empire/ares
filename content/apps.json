@@ -5,22 +5,44 @@
       "id": "aresium",
       "name": "Aresium",
       "icon": "aresium.webp",
-      "accent": { "light": "#C8102E", "dark": "#FF4D63" },
+      "accent": {
+        "light": "#C8102E",
+        "dark": "#FF4D63"
+      },
       "availability": "request",
       "repo": null,
       "shots": {
-        "light": ["02-overview-light", "05-transaction-light"],
-        "dark": ["01-overview-dark", "04-income-dark"],
-        "red": ["03-red-mode", "01-overview-dark"]
+        "light": [
+          "02-overview-light",
+          "05-transaction-light"
+        ],
+        "dark": [
+          "01-overview-dark",
+          "04-income-dark"
+        ],
+        "red": [
+          "03-red-mode",
+          "01-overview-dark"
+        ]
       },
       "text": {
         "en": {
           "tagline": "Personal finance, understood.",
-          "points": ["Spending by month and category", "Bank and PayPal exports imported from the share sheet", "Widgets for the home screen"]
+          "points": [
+            "Transactions sorted into categories automatically",
+            "Clear charts by month and category",
+            "Receipt capture with the camera",
+            "Widgets for the home screen"
+          ]
         },
         "de": {
           "tagline": "Persönliche Finanzen, verstanden.",
-          "points": ["Ausgaben nach Monat und Kategorie", "Bank- und PayPal-Exporte über das Teilen-Menü importieren", "Widgets für den Home-Bildschirm"]
+          "points": [
+            "Buchungen automatisch in Kategorien sortiert",
+            "Klare Diagramme nach Monat und Kategorie",
+            "Belege mit der Kamera erfassen",
+            "Widgets für den Home-Bildschirm"
+          ]
         }
       }
     },
@@ -28,21 +50,38 @@
       "id": "arestemis",
       "name": "Arestemis",
       "icon": "arestemis.webp",
-      "accent": { "light": "#6A4FE0", "dark": "#A996FF" },
+      "accent": {
+        "light": "#6A4FE0",
+        "dark": "#A996FF"
+      },
       "availability": "request",
       "repo": null,
       "shots": {
-        "light": ["02-listings-light", "04-search-light"],
-        "dark": ["01-hunt-dark", "03-listing-dark"]
+        "light": [
+          "02-listings-light",
+          "04-search-light"
+        ],
+        "dark": [
+          "01-hunt-dark",
+          "03-listing-dark"
+        ]
       },
       "text": {
         "en": {
-          "tagline": "Flat hunting on autopilot.",
-          "points": ["One search: places, size, rent, move-in date", "An AI checks every new listing against the whole search", "An application text ready to copy"]
+          "tagline": "Flat finding on autopilot.",
+          "points": [
+            "One search: places, size, rent, move-in date",
+            "An AI checks every new listing against the whole search",
+            "Instant alerts for new matching listings"
+          ]
         },
         "de": {
           "tagline": "Wohnungssuche auf Autopilot.",
-          "points": ["Eine Suche: Orte, Größe, Miete, Einzug", "Eine KI prüft jedes neue Angebot gegen die ganze Suche", "Ein Bewerbungstext zum Kopieren"]
+          "points": [
+            "Eine Suche: Orte, Größe, Miete, Einzug",
+            "Eine KI prüft jedes neue Angebot gegen die ganze Suche",
+            "Sofort benachrichtigt bei passenden Angeboten"
+          ]
         }
       }
     },
@@ -50,21 +89,38 @@
       "id": "arestoteles",
       "name": "Arestoteles",
       "icon": "arestoteles.webp",
-      "accent": { "light": "#12746B", "dark": "#5ECBBE" },
-      "availability": "personal",
+      "accent": {
+        "light": "#12746B",
+        "dark": "#5ECBBE"
+      },
+      "availability": "request",
       "repo": null,
       "shots": {
-        "light": ["02-position-light", "04-search-light"],
-        "dark": ["01-positions-dark", "03-note-dark"]
+        "light": [
+          "02-position-light",
+          "04-search-light"
+        ],
+        "dark": [
+          "01-positions-dark",
+          "03-note-dark"
+        ]
       },
       "text": {
         "en": {
-          "tagline": "A personal knowledge vault, in your pocket.",
-          "points": ["Positions with the evidence behind them", "Search by meaning, in English and German", "Notes and edits that flow back into the vault"]
+          "tagline": "A personal wiki, on every device.",
+          "points": [
+            "Detailed notes and fact-based positions, always at hand",
+            "AI search that answers from your own knowledge",
+            "Edits synced across all your devices"
+          ]
         },
         "de": {
-          "tagline": "Eine persönliche Wissenssammlung für die Hosentasche.",
-          "points": ["Positionen mit den Belegen dahinter", "Suche nach Bedeutung, auf Deutsch und Englisch", "Notizen und Änderungen, die in die Sammlung zurückfließen"]
+          "tagline": "Ein persönliches Wiki, auf jedem Gerät.",
+          "points": [
+            "Ausführliche Notizen und faktenbasierte Positionen, immer griffbereit",
+            "KI-Suche, die aus dem eigenen Wissen antwortet",
+            "Änderungen auf allen Geräten synchron"
+          ]
         }
       }
     },
@@ -72,21 +128,38 @@
       "id": "aresus",
       "name": "Aresus",
       "icon": "aresus.webp",
-      "accent": { "light": "#2A62E0", "dark": "#6AA8FF" },
-      "availability": "personal",
+      "accent": {
+        "light": "#2A62E0",
+        "dark": "#6AA8FF"
+      },
+      "availability": "request",
       "repo": null,
       "shots": {
-        "light": ["03-aresync-light", "01-watchtower-dark"],
-        "dark": ["01-watchtower-dark", "04-widgets-dark"]
+        "light": [
+          "03-aresync-light",
+          "01-watchtower-dark"
+        ],
+        "dark": [
+          "01-watchtower-dark",
+          "04-widgets-dark"
+        ]
       },
       "text": {
         "en": {
-          "tagline": "Server monitoring at a glance.",
-          "points": ["Every service checked every minute", "A notification when something breaks", "Widgets for the home and lock screen"]
+          "tagline": "Digital infrastructure at a glance.",
+          "points": [
+            "Every app and service checked around the clock",
+            "Sync status of every device",
+            "An alert the moment something breaks"
+          ]
         },
         "de": {
-          "tagline": "Server-Monitoring auf einen Blick.",
-          "points": ["Jeder Dienst jede Minute geprüft", "Eine Mitteilung, wenn etwas ausfällt", "Widgets für Home- und Sperrbildschirm"]
+          "tagline": "Die digitale Infrastruktur auf einen Blick.",
+          "points": [
+            "Jede App und jeder Dienst rund um die Uhr geprüft",
+            "Sync-Status aller Geräte",
+            "Eine Meldung, sobald etwas ausfällt"
+          ]
         }
       }
     }

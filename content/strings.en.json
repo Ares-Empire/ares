@@ -1,17 +1,28 @@
 {
-  "lang": { "name": "English", "short": "EN", "switchTo": "In English" },
+  "lang": {
+    "name": "English",
+    "short": "EN",
+    "switchTo": "In English"
+  },
   "meta": {
     "homeTitle": "Patrik Breeck",
     "homeDescription": "Patrik Breeck: Information Systems student at TUM, working at Munich Re, building iPhone apps and software on the side.",
     "appsTitle": "Ares apps · Patrik Breeck",
-    "appsDescription": "Native iPhone apps by Patrik Breeck: Aresium, Arestemis, Arestoteles and Aresus.",
+    "appsDescription": "Native iPhone apps by Patrik Breeck, built in Swift and backed by servers in the EU.",
     "imprintTitle": "Imprint · Patrik Breeck",
     "privacyTitle": "Privacy policy · Patrik Breeck"
   },
-  "nav": { "home": "Patrik Breeck" },
-  "looks": { "label": "Look", "light": "Light", "dark": "Dark", "red": "Red and gold" },
+  "nav": {
+    "home": "Patrik Breeck"
+  },
+  "looks": {
+    "label": "Look",
+    "light": "Light",
+    "dark": "Dark",
+    "red": "Red and gold"
+  },
   "home": {
-    "lead": "Information Systems student at TUM, working at Munich Re. I build software on the side, from iPhone apps anyone can try and help shape with feature requests to the pixel companions on this page.",
+    "lead": "Information Systems student at TUM, working at Munich Re. On the side I build software: apps, tools and an AI-native operating system. Anyone can try the iPhone apps and request features, and the pixel companions on this page are mine too.",
     "links": "Links",
     "appsTitle": "iPhone apps",
     "appsSub": "Try them, request features",
@@ -23,13 +34,13 @@
     "aresosName": "AresOS",
     "aresos": "AI-native operating system that runs the whole computer from inside Minecraft.",
     "appsName": "Ares apps",
-    "apps": "Native iPhone apps for finance, flat hunting, knowledge and server monitoring, on one shared account.",
+    "apps": "Native iPhone apps for finance, flat finding, a personal wiki and infrastructure monitoring, on one shared account.",
     "companionsName": "Companions",
     "companions": "{count} animated pixel characters for any screen, each with its own moves, skins and outfits."
   },
   "status": {
     "building": "In development",
-    "waiting": "TestFlight soon"
+    "available": "Available"
   },
   "footer": {
     "imprint": "Imprint",
@@ -38,13 +49,16 @@
   },
   "apps": {
     "title": "Ares apps",
-    "lead": "Native SwiftUI apps for the iPhone: personal finance, flat hunting, a knowledge vault and server monitoring. Each one speaks English and German, comes in light and dark, and shares one account with the others.",
-    "state": "Built and tested. Available via TestFlight as soon as Apple approves the developer account; anyone is welcome to try them and request features.",
-    "shared": ["English and German", "Light and dark", "One shared account"],
+    "lead": "Native iPhone apps, built in Swift and backed by servers in the EU.",
+    "shared": [
+      "No ads, no tracking",
+      "One account for all apps",
+      "English and German",
+      "Light and dark"
+    ],
     "request": "Request access",
-    "requestNote": "Access is by request: each one is approved personally and answered with a TestFlight invite.",
-    "personal": "Personal use for now",
-    "personalNote": "Not open for requests yet.",
+    "requestNote": "Access is by request: each request is approved personally and answered with an install link.",
+    "personal": "Private app",
     "repo": "Code on GitHub",
     "shotAlt": "{name} on the iPhone",
     "privacy": "Privacy policy of the apps"
@@ -68,16 +82,51 @@
     "reset": "Start over",
     "footer": "Companions: animated pixel characters for any screen, in development. The code will be published on GitHub.",
     "repo": "Companions on GitHub",
-    "groups": { "Originals": "Originals", "Apps": "Apps", "Mascots": "Mascots", "Minecraft": "Minecraft", "Others": "Others" },
+    "groups": {
+      "Originals": "Originals",
+      "Apps": "Apps",
+      "Mascots": "Mascots",
+      "Minecraft": "Minecraft",
+      "Others": "Others"
+    },
     "skins": {
-      "original": "Original", "red": "Red", "blue": "Blue", "green": "Green", "white": "White", "black": "Black",
-      "yellow": "Yellow", "magenta": "Magenta", "rainbow": "Rainbow", "sparkle": "Sparkle", "gold": "Gold",
-      "enchanted": "Enchanted", "diamond": "Diamond", "lava": "Lava", "galaxy": "Galaxy", "aurora": "Aurora"
+      "original": "Original",
+      "red": "Red",
+      "blue": "Blue",
+      "green": "Green",
+      "white": "White",
+      "black": "Black",
+      "yellow": "Yellow",
+      "magenta": "Magenta",
+      "rainbow": "Rainbow",
+      "sparkle": "Sparkle",
+      "gold": "Gold",
+      "enchanted": "Enchanted",
+      "diamond": "Diamond",
+      "lava": "Lava",
+      "galaxy": "Galaxy",
+      "aurora": "Aurora"
     },
     "outfits": {
-      "none": "Nothing", "tophat": "Top hat", "crown": "Crown", "party": "Party hat", "nightcap": "Nightcap", "fedora": "Fedora",
-      "suit": "Suit and tie", "hoodie": "Hoodie", "cape": "Superhero cape", "armor": "Diamond armor", "scarf": "Scarf", "chain": "Gold chain"
+      "none": "Nothing",
+      "tophat": "Top hat",
+      "crown": "Crown",
+      "party": "Party hat",
+      "nightcap": "Nightcap",
+      "fedora": "Fedora",
+      "suit": "Suit and tie",
+      "hoodie": "Hoodie",
+      "cape": "Superhero cape",
+      "armor": "Diamond armor",
+      "scarf": "Scarf",
+      "chain": "Gold chain"
     },
-    "sizes": { "-2": "Tiny", "-1": "Small", "0": "Normal", "1": "Big", "2": "Huge" }
+    "sizes": {
+      "-2": "Tiny",
+      "-1": "Small",
+      "0": "Normal",
+      "1": "Big",
+      "2": "Huge"
+    }
   }
 }
