@@ -1,0 +1,91 @@
+{
+  "lang": { "name": "English", "short": "EN", "switchTo": "In English" },
+  "meta": {
+    "homeTitle": "Patrik Breeck",
+    "homeDescription": "Patrik Breeck builds iPhone apps, his own operating system and pixel creatures that live on your screen.",
+    "appsTitle": "Ares apps · Patrik Breeck",
+    "appsDescription": "Native iPhone apps Patrik Breeck builds under the name Ares: Aresium, Arestemis, Arestoteles and Aresus.",
+    "imprintTitle": "Imprint · Patrik Breeck",
+    "privacyTitle": "Privacy policy · Patrik Breeck"
+  },
+  "nav": { "home": "Patrik Breeck", "back": "Back to the start" },
+  "home": {
+    "aka": "Also known as Ares",
+    "lead": "I build iPhone apps, my own operating system and the little pixel creatures walking around this page.",
+    "apps": "Ares apps",
+    "links": "Links"
+  },
+  "now": {
+    "title": "Now",
+    "studyLabel": "Studying",
+    "study": "Business Informatics (B.Sc.), 3rd semester",
+    "workLabel": "Working",
+    "work": "Full-time at Munich Re",
+    "projectsTitle": "Projects"
+  },
+  "projects": {
+    "aresosName": "AresOS",
+    "aresos": "My own operating system: a Linux that boots into a Minecraft world, with the apps living in the game.",
+    "appsName": "Ares apps",
+    "apps": "Four native iPhone apps in English and German, light and dark, with one account for all of them.",
+    "companionsName": "Companions",
+    "companions": "{count} pixel creatures for any screen, each with moves of its own. A few of them live on this page."
+  },
+  "status": {
+    "building": "In development",
+    "waiting": "Waiting for Apple"
+  },
+  "footer": {
+    "imprint": "Imprint",
+    "privacy": "Privacy",
+    "customize": "Customize the companions"
+  },
+  "apps": {
+    "title": "Ares apps",
+    "lead": "Native iPhone apps I build under the name Ares. Each one speaks English and German, has a light and a dark look, and they all share one Ares account.",
+    "state": "Built and tested. They come to the iPhone via TestFlight as soon as Apple approves the developer account.",
+    "shared": ["English and German", "Light and dark", "One Ares account"],
+    "request": "Request access",
+    "requestNote": "Requests go through the contact form for now. I approve each one and send a TestFlight invite.",
+    "personal": "Personal app",
+    "personalNote": "It shows only my own data, so it stays mine.",
+    "repo": "Code on GitHub",
+    "screensSoon": "Screenshots follow",
+    "privacy": "Privacy policy of the apps"
+  },
+  "legal": {
+    "imprint": "Imprint",
+    "privacy": "Privacy policy"
+  },
+  "menu": {
+    "say": "Customize us!",
+    "title": "Companions",
+    "intro": "Choose who lives on this page and how they look. Your choice is saved only in this browser.",
+    "here": "On this page",
+    "none": "Nobody is here. Add someone below.",
+    "looks": "Looks",
+    "skin": "Skin",
+    "head": "Hat",
+    "body": "Clothes",
+    "size": "Size",
+    "remove": "Take off the page",
+    "add": "Add more",
+    "loading": "Loading the companions…",
+    "failed": "The companions could not be loaded.",
+    "close": "Close",
+    "reset": "Start over",
+    "footer": "Companions is my project of pixel creatures for any screen. The code goes public on GitHub once it's ready.",
+    "repo": "Companions on GitHub",
+    "groups": { "Originals": "Originals", "Apps": "Apps", "Mascots": "Mascots", "Minecraft": "Minecraft", "Others": "Others" },
+    "skins": {
+      "original": "Original", "red": "Red", "blue": "Blue", "green": "Green", "white": "White", "black": "Black",
+      "yellow": "Yellow", "magenta": "Magenta", "rainbow": "Rainbow", "sparkle": "Sparkle", "gold": "Gold",
+      "enchanted": "Enchanted", "diamond": "Diamond", "lava": "Lava", "galaxy": "Galaxy", "aurora": "Aurora"
+    },
+    "outfits": {
+      "none": "Nothing", "tophat": "Top hat", "crown": "Crown", "party": "Party hat", "nightcap": "Nightcap", "fedora": "Fedora",
+      "suit": "Suit and tie", "hoodie": "Hoodie", "cape": "Superhero cape", "armor": "Diamond armor", "scarf": "Scarf", "chain": "Gold chain"
+    },
+    "sizes": { "-2": "Tiny", "-1": "Small", "0": "Normal", "1": "Big", "2": "Huge" }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "domain": "patrikbreeck.com",
+  "public": false,
+  "owner": {
+    "name": "Patrik Breeck",
+    "street": "REDACTED-ADDRESS",
+    "city": "85748 Garching",
+    "email": "REDACTED-EMAIL"
+  },
+  "links": {
+    "github": "https://github.com/carlsenares",
+    "linkedin": "https://www.linkedin.com/in/REPLACE-ME",
+    "contact": { "en": "https://www.ares-empire.de/contact", "de": "https://www.ares-empire.de/kontakt" },
+    "appsPrivacy": { "en": "https://www.ares-empire.de/privacy", "de": "https://www.ares-empire.de/datenschutz" }
+  },
+  "repos": {
+    "companions": null,
+    "aresos": null
+  },
+  "companions": {
+    "desktop": ["clawd", "clippy", "creeper"],
+    "phone": ["clawd", "clippy"],
+    "speakers": ["clippy", "clawd"]
+  }
+}

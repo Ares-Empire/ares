@@ -1,0 +1,91 @@
+{
+  "lang": { "name": "Deutsch", "short": "DE", "switchTo": "Auf Deutsch" },
+  "meta": {
+    "homeTitle": "Patrik Breeck",
+    "homeDescription": "Patrik Breeck baut iPhone-Apps, sein eigenes Betriebssystem und Pixel-Wesen, die auf deinem Bildschirm leben.",
+    "appsTitle": "Ares-Apps · Patrik Breeck",
+    "appsDescription": "Native iPhone-Apps, die Patrik Breeck unter dem Namen Ares baut: Aresium, Arestemis, Arestoteles und Aresus.",
+    "imprintTitle": "Impressum · Patrik Breeck",
+    "privacyTitle": "Datenschutzerklärung · Patrik Breeck"
+  },
+  "nav": { "home": "Patrik Breeck", "back": "Zurück zum Start" },
+  "home": {
+    "aka": "Auch bekannt als Ares",
+    "lead": "Ich baue iPhone-Apps, mein eigenes Betriebssystem und die kleinen Pixel-Wesen, die hier herumlaufen.",
+    "apps": "Ares-Apps",
+    "links": "Links"
+  },
+  "now": {
+    "title": "Aktuell",
+    "studyLabel": "Studium",
+    "study": "Wirtschaftsinformatik (B.Sc.), 3. Semester",
+    "workLabel": "Arbeit",
+    "work": "Vollzeit bei Munich Re",
+    "projectsTitle": "Projekte"
+  },
+  "projects": {
+    "aresosName": "AresOS",
+    "aresos": "Mein eigenes Betriebssystem: ein Linux, das in eine Minecraft-Welt startet, in der die Apps leben.",
+    "appsName": "Ares-Apps",
+    "apps": "Vier native iPhone-Apps auf Deutsch und Englisch, hell und dunkel, mit einem Konto für alle.",
+    "companionsName": "Companions",
+    "companions": "{count} Pixel-Wesen für jeden Bildschirm, jedes mit eigenen Moves. Ein paar davon wohnen auf dieser Seite."
+  },
+  "status": {
+    "building": "In Entwicklung",
+    "waiting": "Wartet auf Apple"
+  },
+  "footer": {
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "customize": "Companions anpassen"
+  },
+  "apps": {
+    "title": "Ares-Apps",
+    "lead": "Native iPhone-Apps, die ich unter dem Namen Ares baue. Jede spricht Deutsch und Englisch, hat ein helles und ein dunkles Design, und alle teilen sich ein Ares-Konto.",
+    "state": "Fertig gebaut und getestet. Sobald Apple das Entwicklerkonto freigibt, kommen sie per TestFlight aufs iPhone.",
+    "shared": ["Deutsch und Englisch", "Hell und dunkel", "Ein Ares-Konto"],
+    "request": "Zugang anfragen",
+    "requestNote": "Anfragen laufen vorerst über das Kontaktformular. Ich prüfe jede und schicke eine TestFlight-Einladung.",
+    "personal": "Persönliche App",
+    "personalNote": "Sie zeigt nur meine eigenen Daten und bleibt deshalb bei mir.",
+    "repo": "Code auf GitHub",
+    "screensSoon": "Screenshots folgen",
+    "privacy": "Datenschutzerklärung der Apps"
+  },
+  "legal": {
+    "imprint": "Impressum",
+    "privacy": "Datenschutzerklärung"
+  },
+  "menu": {
+    "say": "Pass uns an!",
+    "title": "Companions",
+    "intro": "Wähle, wer auf dieser Seite wohnt und wie sie aussehen. Deine Auswahl bleibt nur in diesem Browser.",
+    "here": "Auf dieser Seite",
+    "none": "Niemand ist da. Füge unten jemanden hinzu.",
+    "looks": "Aussehen",
+    "skin": "Skin",
+    "head": "Hut",
+    "body": "Kleidung",
+    "size": "Größe",
+    "remove": "Von der Seite nehmen",
+    "add": "Weitere hinzufügen",
+    "loading": "Companions werden geladen …",
+    "failed": "Die Companions konnten nicht geladen werden.",
+    "close": "Schließen",
+    "reset": "Zurücksetzen",
+    "footer": "Companions ist mein Projekt für Pixel-Wesen auf jedem Bildschirm. Der Code kommt auf GitHub, sobald er so weit ist.",
+    "repo": "Companions auf GitHub",
+    "groups": { "Originals": "Originale", "Apps": "Apps", "Mascots": "Maskottchen", "Minecraft": "Minecraft", "Others": "Weitere" },
+    "skins": {
+      "original": "Original", "red": "Rot", "blue": "Blau", "green": "Grün", "white": "Weiß", "black": "Schwarz",
+      "yellow": "Gelb", "magenta": "Magenta", "rainbow": "Regenbogen", "sparkle": "Glitzer", "gold": "Gold",
+      "enchanted": "Verzaubert", "diamond": "Diamant", "lava": "Lava", "galaxy": "Galaxie", "aurora": "Polarlicht"
+    },
+    "outfits": {
+      "none": "Nichts", "tophat": "Zylinder", "crown": "Krone", "party": "Partyhut", "nightcap": "Schlafmütze", "fedora": "Fedora",
+      "suit": "Anzug mit Krawatte", "hoodie": "Hoodie", "cape": "Superheldenumhang", "armor": "Diamantrüstung", "scarf": "Schal", "chain": "Goldkette"
+    },
+    "sizes": { "-2": "Winzig", "-1": "Klein", "0": "Normal", "1": "Groß", "2": "Riesig" }
+  }
+}

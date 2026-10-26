@@ -1,0 +1,3 @@
+[submodule "vendor/companions"]
+	path = vendor/companions
+	url = https://github.com/Ares-Empire/companions
