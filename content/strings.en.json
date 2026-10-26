@@ -22,7 +22,7 @@
     "red": "Red and gold"
   },
   "home": {
-    "lead": "Information Systems student at TUM, working at Munich Re. On the side I build software: apps, tools and an AI-native operating system. Anyone can try the iPhone apps and request features, and the pixel companions on this page are mine too.",
+    "lead": "Information Systems student at TUM, working at Munich Re, and building software on the side. Try the iPhone apps and request features, or meet the pixel companions walking around this page.",
     "links": "Links",
     "appsTitle": "iPhone apps",
     "appsSub": "Try them, request features",
@@ -49,16 +49,9 @@
   },
   "apps": {
     "title": "Ares apps",
-    "lead": "Native iPhone apps, built in Swift and backed by servers in the EU.",
-    "shared": [
-      "No ads, no tracking",
-      "One account for all apps",
-      "English and German",
-      "Light and dark"
-    ],
+    "lead": "Native iPhone apps, built in Swift and backed by servers in the EU. No ads, no tracking, private by design.",
     "request": "Request access",
     "requestNote": "Access is by request: each request is approved personally and answered with an install link.",
-    "personal": "Private app",
     "repo": "Code on GitHub",
     "shotAlt": "{name} on the iPhone",
     "privacy": "Privacy policy of the apps"

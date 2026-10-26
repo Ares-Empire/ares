@@ -1,5 +1,5 @@
 {
-  "_comment": "The apps on /apps. availability: request (a Request access button) or personal (no button). repo: the GitHub URL once the code is public, else null. shots: for each look of the site, [front, back] pictures from empire-ios/showcase/<id>/ (import them with tools/import-showcase.py); a look without its own pair uses dark's. Accents are the apps' own (empire-ios Shared/Design: AppAccent; Aresium's red).",
+  "_comment": "The apps on /apps. availability: request (a Request access button) or showcase (shown, no button). repo: the GitHub URL once the code is public, else null. shots: for each look of the site, [front, back] pictures from empire-ios/showcase/<id>/ (import them with tools/import-showcase.py); a look without its own pair uses dark's. Accents are the apps' own (empire-ios Shared/Design: AppAccent; Aresium's red).",
   "apps": [
     {
       "id": "aresium",
@@ -31,8 +31,7 @@
           "points": [
             "Transactions sorted into categories automatically",
             "Clear charts by month and category",
-            "Receipt capture with the camera",
-            "Widgets for the home screen"
+            "Image processing for receipts"
           ]
         },
         "de": {
@@ -40,8 +39,7 @@
           "points": [
             "Buchungen automatisch in Kategorien sortiert",
             "Klare Diagramme nach Monat und Kategorie",
-            "Belege mit der Kamera erfassen",
-            "Widgets für den Home-Bildschirm"
+            "Bildverarbeitung für Belege"
           ]
         }
       }
@@ -93,7 +91,7 @@
         "light": "#12746B",
         "dark": "#5ECBBE"
       },
-      "availability": "request",
+      "availability": "showcase",
       "repo": null,
       "shots": {
         "light": [
@@ -110,7 +108,7 @@
           "tagline": "A personal wiki, on every device.",
           "points": [
             "Detailed notes and fact-based positions, always at hand",
-            "AI search that answers from your own knowledge",
+            "RAG search that answers from your own knowledge",
             "Edits synced across all your devices"
           ]
         },
@@ -118,7 +116,7 @@
           "tagline": "Ein persönliches Wiki, auf jedem Gerät.",
           "points": [
             "Ausführliche Notizen und faktenbasierte Positionen, immer griffbereit",
-            "KI-Suche, die aus dem eigenen Wissen antwortet",
+            "RAG-Suche, die aus dem eigenen Wissen antwortet",
             "Änderungen auf allen Geräten synchron"
           ]
         }
@@ -132,7 +130,7 @@
         "light": "#2A62E0",
         "dark": "#6AA8FF"
       },
-      "availability": "request",
+      "availability": "showcase",
       "repo": null,
       "shots": {
         "light": [

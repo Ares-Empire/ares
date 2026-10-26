@@ -196,13 +196,13 @@ p { margin: 0; }
 .status.available { color: var(--available); }
 
 /* ---------- apps ---------- */
-.apps, .legal { width: 100%; max-width: 1040px; margin: 0 auto; padding: 8px var(--gutter) 32px; }
+.apps, .legal { width: 100%; max-width: 1120px; margin: 0 auto; padding: 8px var(--gutter) 32px; }
 .page-head { max-width: 680px; margin: 18px 0 34px; }
 .page-head h1 { font-size: clamp(38px, 5.4vw, 60px); line-height: 1.02; letter-spacing: -0.04em; }
-.page-head .lead { max-width: none; font-size: clamp(17px, 1.8vw, 19px); }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0; padding: 0; list-style: none; }
-.chips li { font-size: 13px; font-weight: 500; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); color: var(--ink-2); }
-.state { margin-top: 18px; font-size: 14px; color: var(--ink-3); }
+.apps .page-head { max-width: none; }
+.page-head .lead { max-width: none; font-size: 18px; }
+/* The apps' description, two sentences, on one line wherever it fits (Patrik, 2026-10-26). */
+@media (min-width: 1080px) { .apps .page-head .lead { white-space: nowrap; } }
 
 .app-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
 .app { display: flex; flex-direction: column; align-items: center; gap: 30px; padding: clamp(22px, 3vw, 32px); }

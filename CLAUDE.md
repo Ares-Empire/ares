@@ -21,7 +21,9 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
 - **Looks:** three, switched in the header (`static/js/theme.js` sets `data-theme` on `<html>`; every colour is a token
   per look at the top of `site.css`). **Dark is the default** for every first visit, whatever the system says (Patrik,
   2026-10-26). Behind every page drifts one calm line of light (`static/js/flow.js`, colours `--flow-*` per look): keep
-  it slow and faint, never a show. Light and dark are the Ares apps' look (Aresium's website, `empire-ios`
+  it slow, steady and faint, never a show. It does not follow the pointer (it made it fast and jerky); it turns at most
+  20°/s within a fixed speed range. A page can mark its content `data-flow-column` (the apps' cards) to keep the line
+  beside it, with a longer trail. Light and dark are the Ares apps' look (Aresium's website, `empire-ios`
   Shared/Design): glass cards, Space Grotesk, ink accents, a faint red and blue light. Red is red and gold: a
   wine-black wall lit crimson, gold-edged glass, the name in the Empire's gold text with one shine. Simple, clean and
   professional first (Patrik, 2026-10-26); the apps bring their own accents. A new colour gets a token in all three.

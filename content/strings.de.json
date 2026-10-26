@@ -22,7 +22,7 @@
     "red": "Rot und Gold"
   },
   "home": {
-    "lead": "Wirtschaftsinformatik-Student an der TUM, tätig bei Munich Re. Nebenbei entwickle ich Software: Apps, Tools und ein KI-natives Betriebssystem. Die iPhone-Apps können alle ausprobieren und mit Feature-Wünschen mitgestalten, und die Pixel-Companions auf dieser Seite stammen ebenfalls von mir.",
+    "lead": "Wirtschaftsinformatik-Student an der TUM, tätig bei Munich Re, mit Software-Projekten nebenbei. Probier die iPhone-Apps aus und wünsch dir Features, oder triff die Pixel-Companions, die auf dieser Seite herumlaufen.",
     "links": "Links",
     "appsTitle": "iPhone-Apps",
     "appsSub": "Ausprobieren, Features wünschen",
@@ -49,16 +49,9 @@
   },
   "apps": {
     "title": "Ares-Apps",
-    "lead": "Native iPhone-Apps, gebaut in Swift, mit Servern in der EU.",
-    "shared": [
-      "Keine Werbung, kein Tracking",
-      "Ein Konto für alle Apps",
-      "Deutsch und Englisch",
-      "Hell und dunkel"
-    ],
+    "lead": "Native iPhone-Apps, gebaut in Swift, mit Servern in der EU. Keine Werbung, kein Tracking, privat von Grund auf.",
     "request": "Zugang anfragen",
     "requestNote": "Zugang auf Anfrage: Jede Anfrage wird persönlich geprüft und mit einem Installationslink beantwortet.",
-    "personal": "Private App",
     "repo": "Code auf GitHub",
     "shotAlt": "{name} auf dem iPhone",
     "privacy": "Datenschutzerklärung der Apps"

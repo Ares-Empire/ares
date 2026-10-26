@@ -280,8 +280,8 @@ def page_apps(lang: str, s: Strings, site: dict, apps: list[dict]) -> str:
         points = "".join(f"<li>{esc(p)}</li>" for p in text["points"])
         if app["availability"] == "request":
             action = f'<a class="btn primary accent" href="{contact}">{s("apps.request")}{ICONS["arrow"]}</a>'
-        elif app["availability"] == "personal":
-            action = f'<p class="personal"><span class="status">{s("apps.personal")}</span></p>'
+        elif app["availability"] == "showcase":
+            action = ""          # shown on the page, no way to ask for it
         else:
             raise BuildError(f"apps.json: {app['id']} has an unknown availability '{app['availability']}'")
         repo = (f'<a class="btn" href="{esc(app["repo"])}" rel="noopener">{ICONS["github"]}{s("apps.repo")}</a>'
@@ -294,17 +294,16 @@ def page_apps(lang: str, s: Strings, site: dict, apps: list[dict]) -> str:
         <div><h2 id="{esc(app['id'])}-name">{esc(app['name'])}</h2><p class="tagline">{esc(text['tagline'])}</p></div>
       </div>
       <ul class="points">{points}</ul>
-      <div class="app-actions">{action}{repo}</div>
+      {f'<div class="app-actions">{action}{repo}</div>' if action or repo else ''}
     </div>
   </article>""")
-    shared = "".join(f"<li>{esc(x)}</li>" for x in s.get("apps.shared"))
+    # data-flow-column: the background line travels beside the cards, not behind them (static/js/flow.js).
     return f"""<main class="apps">
   <header class="page-head">
     <h1>{s('apps.title')}</h1>
     <p class="lead">{s('apps.lead')}</p>
-    <ul class="chips">{shared}</ul>
   </header>
-  <div class="app-list">
+  <div class="app-list" data-flow-column>
 {chr(10).join(cards)}
   </div>
   <p class="apps-note">{s('apps.requestNote')} <a href="{esc(site['links']['appsPrivacy'][lang])}">{s('apps.privacy')}</a></p>
