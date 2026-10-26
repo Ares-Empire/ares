@@ -284,8 +284,10 @@ def page_apps(lang: str, s: Strings, site: dict, apps: list[dict]) -> str:
             action = ""          # shown on the page, no way to ask for it
         else:
             raise BuildError(f"apps.json: {app['id']} has an unknown availability '{app['availability']}'")
-        repo = (f'<a class="btn" href="{esc(app["repo"])}" rel="noopener">{ICONS["github"]}{s("apps.repo")}</a>'
-                if app.get("repo") else "")
+        demo = (f'<a class="btn" href="{esc(app["demo"])}" rel="noopener">{s("apps.demo")}{ICONS["external"]}</a>'
+                if app.get("demo") else "")
+        repo = demo + (f'<a class="btn" href="{esc(app["repo"])}" rel="noopener">{ICONS["github"]}{s("apps.repo")}</a>'
+                       if app.get("repo") else "")
         cards.append(f"""  <article class="card app app--{esc(app['id'])}" id="{esc(app['id'])}" aria-labelledby="{esc(app['id'])}-name">
     {shots(app, s)}
     <div class="app-body">

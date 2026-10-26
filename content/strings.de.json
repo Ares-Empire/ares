@@ -54,7 +54,8 @@
     "requestNote": "Zugang auf Anfrage: Jede Anfrage wird persönlich geprüft und mit einem Installationslink beantwortet.",
     "repo": "Code auf GitHub",
     "shotAlt": "{name} auf dem iPhone",
-    "privacy": "Datenschutzerklärung der Apps"
+    "privacy": "Datenschutzerklärung der Apps",
+    "demo": "Demo ansehen"
   },
   "menu": {
     "say": "Pass uns an!",

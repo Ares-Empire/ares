@@ -54,7 +54,8 @@
     "requestNote": "Access is by request: each request is approved personally and answered with an install link.",
     "repo": "Code on GitHub",
     "shotAlt": "{name} on the iPhone",
-    "privacy": "Privacy policy of the apps"
+    "privacy": "Privacy policy of the apps",
+    "demo": "Try the demo"
   },
   "menu": {
     "say": "Customize us!",
