@@ -339,7 +339,25 @@ def apps_css(apps: list[dict]) -> str:
 
 # ---------- the build ----------
 
+def outside_links_in_new_tab(page: str) -> str:
+    """Every link that leaves the site opens in a new tab, with rel=noopener (Patrik, 2026-10-27). The site's own
+    pages (start, apps, imprint, privacy, the other language) stay in this tab, so Back keeps working."""
+    own = re.escape(SITE_DOMAIN)
+    def fix(m):
+        tag = m.group(0)
+        if " target=" in tag:
+            return tag
+        if ' rel="' in tag:
+            tag = re.sub(r' rel="([^"]*)"', lambda r: r.group(0) if "noopener" in r.group(1).split()
+                         else f' rel="{r.group(1)} noopener"', tag)
+        else:
+            tag = tag[:-1] + ' rel="noopener">'
+        return tag[:-1] + ' target="_blank">'
+    return re.sub(r'<a\s[^>]*href="https?://(?!(?:www\.)?' + own + r')[^"]*"[^>]*>', fix, page)
+
+
 def write(path: str, text: str):
+    text = outside_links_in_new_tab(text)
     out = DIST / path.lstrip("/")
     if path.endswith("/"):
         out = out / "index.html"
@@ -375,11 +393,14 @@ def check_output(site: dict) -> list[str]:
 
 
 STRINGS: dict[str, Strings] = {}
+SITE_DOMAIN = ""   # the site's own domain, from site.json (set in build)
 
 
 def build() -> list[str]:
     STRINGS.update(load_strings())
     site = load_json(CONTENT / "site.json")
+    global SITE_DOMAIN
+    SITE_DOMAIN = site["domain"]
     apps = load_json(CONTENT / "apps.json")["apps"]
     if DIST.exists():
         shutil.rmtree(DIST)

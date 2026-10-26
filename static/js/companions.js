@@ -470,7 +470,7 @@ function buildMenu() {
   reset.addEventListener('click', startOver);
   const remove = el('button', { type: 'button', className: 'btn cm-remove', textContent: T.remove || 'Remove' });
   remove.addEventListener('click', () => { if (chosen) { setOnScreen(chosen, false); chosen = cast[0] || null; renderMenu(); } });
-  const repo = config.repo ? el('a', { href: config.repo, rel: 'noopener', textContent: T.repo || 'GitHub' }) : null;
+  const repo = config.repo ? el('a', { href: config.repo, rel: 'noopener', target: '_blank', textContent: T.repo || 'GitHub' }) : null;
   const parts = {
     here: el('div', { className: 'cm-here' }),
     empty: el('p', { className: 'cm-empty', textContent: T.none || '' }),

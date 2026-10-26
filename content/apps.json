@@ -161,6 +161,45 @@
           ]
         }
       }
+    },
+    {
+      "id": "empire",
+      "name": "Ares Empire",
+      "icon": "empire.webp",
+      "accent": {
+        "light": "#8C6620",
+        "dark": "#E9C86B"
+      },
+      "availability": "request",
+      "repo": null,
+      "shots": {
+        "light": [
+          "02-marble-hall-light",
+          "03-province-light"
+        ],
+        "dark": [
+          "01-throne-room-dark",
+          "05-more-apps-dark"
+        ]
+      },
+      "text": {
+        "en": {
+          "tagline": "All your Ares apps in one place.",
+          "points": [
+            "Every app you use on one ring, with its live status",
+            "More apps requested with a tap",
+            "What's new across all apps, on one timeline"
+          ]
+        },
+        "de": {
+          "tagline": "Alle Ares-Apps an einem Ort.",
+          "points": [
+            "Jede App, die du nutzt, auf einem Ring, mit aktuellem Status",
+            "Weitere Apps mit einem Tipp anfragen",
+            "Neuigkeiten aus allen Apps auf einer Zeitleiste"
+          ]
+        }
+      }
     }
   ]
 }
