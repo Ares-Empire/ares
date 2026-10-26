@@ -28,6 +28,7 @@ STATIC = ROOT / "static"
 DIST = ROOT / "dist"
 ENGINE = ROOT / "vendor" / "companions"
 LANGS = ("en", "de")
+LOOKS = ("light", "dark", "red")   # the site's looks (static/js/theme.js, site.css); "red" is red and gold
 
 # Every page and its address in each language. The German legal pages keep their German names.
 PAGES = {
@@ -107,6 +108,8 @@ def load_strings() -> dict[str, Strings]:
 ICONS = {
     "arrow": '<svg viewBox="0 0 24 24" aria-hidden="true" class="icon"><path d="M5 12h13M12.5 6l6 6-6 6" fill="none" '
              'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    "external": '<svg viewBox="0 0 24 24" aria-hidden="true" class="icon"><path d="M7 17L17 7M8.5 7H17v8.5" fill="none" '
+                'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     "github": '<svg viewBox="0 0 16 16" aria-hidden="true" class="icon"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 '
               '8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48'
               '-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78'
@@ -141,6 +144,9 @@ def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, descript
         css += f'<link rel="stylesheet" href="{extra_css}">\n'
     brand = "" if page == "home" else (
         f'<a class="brand" href="{PAGES["home"][lang]}">{s("nav.home")}</a>')
+    # The three looks (static/js/theme.js applies the choice and marks the pressed one).
+    looks = "\n".join(f'      <button type="button" class="look look-{look}" data-look="{look}" aria-pressed="false" '
+                      f'aria-label="{s("looks." + look)}" title="{s("looks." + look)}"></button>' for look in LOOKS)
     customize = ""
     scripts = ""
     if companions is not None:
@@ -163,11 +169,17 @@ def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, descript
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-Variable.ttf" as="font" type="font/ttf" crossorigin>
+<script src="{asset_url("js/theme.js")}"></script>
 {css}</head>
 <body>
 <header class="top">
   {brand}
-  <a class="lang" href="{PAGES[page][other]}" hreflang="{other}" lang="{other}" aria-label="{others('lang.switchTo')}">{others('lang.short')}</a>
+  <div class="top-end">
+    <div class="looks" role="group" aria-label="{s('looks.label')}">
+{looks}
+    </div>
+    <a class="lang" href="{PAGES[page][other]}" hreflang="{other}" lang="{other}" aria-label="{others('lang.switchTo')}">{others('lang.short')}</a>
+  </div>
 </header>
 {body}
 <footer class="foot">
@@ -182,49 +194,83 @@ def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, descript
 
 # ---------- pages ----------
 
-def page_home(lang: str, s: Strings, site: dict, count: int) -> str:
+def tile(id_: str, href: str, icon: str, title: str, sub: str, *, external: bool) -> str:
+    rel = ' rel="me noopener"' if external else ""
+    return f"""      <a class="tile card window" id="{id_}" href="{esc(href)}"{rel}>
+        <span class="tile-icon" aria-hidden="true">{icon}</span>
+        <span class="tile-text"><span class="tile-title">{title}</span><span class="tile-sub">{sub}</span></span>
+        {ICONS['external' if external else 'arrow']}
+      </a>"""
+
+
+def page_home(lang: str, s: Strings, site: dict, count: int, apps: list[dict]) -> str:
     links = site["links"]
-    apps = PAGES["apps"][lang]
-    body = f"""<main class="home" data-companions>
-  <div class="home-grid">
-    <section class="hero window" id="hero" aria-labelledby="name">
+    apps_url = PAGES["apps"][lang]
+    stack = "".join(f'<img src="/assets/img/apps/{esc(a["icon"])}" alt="" width="30" height="30">' for a in apps)
+    project = lambda key, status: (f'<li><p class="project-name"><strong>{s(f"projects.{key}Name")}</strong> '
+                                   f'<span class="status {status}">{s(f"status.{status}")}</span></p>'
+                                   f'<p>{s(f"projects.{key}", count=count)}</p></li>')
+    # Companions stand on every .window (each needs an id) and sit at the end of text in a [role=document]
+    # (companions engine, world.js): here only the short "Currently building" heading, where they cover nothing.
+    return f"""<main class="home" data-companions>
+  <div class="home-inner">
+    <section class="intro window" id="intro" aria-labelledby="name">
       <h1 id="name">Patrik Breeck</h1>
-      <p class="aka">{s('home.aka')}</p>
       <p class="lead">{s('home.lead')}</p>
-      <nav class="links window" id="links" aria-label="{s('home.links')}">
-        <a class="btn primary" href="{apps}">{s('home.apps')}{ICONS['arrow']}</a>
-        <a class="btn" href="{esc(links['github'])}" rel="me noopener">{ICONS['github']}GitHub</a>
-        <a class="btn" href="{esc(links['linkedin'])}" rel="me noopener">{ICONS['linkedin']}LinkedIn</a>
-      </nav>
     </section>
-    <section class="card now window" id="now" aria-labelledby="now-title">
-      <!-- The companions sit at the end of text in a [role=document] (companions engine, world.js): only the two
-           short headings, where nothing above them can be covered. -->
-      <div role="document"><h2 class="eyebrow" id="now-title">{s('now.title')}</h2></div>
-      <p class="fact"><span class="fact-label">{s('now.studyLabel')}</span> <span>{s('now.study')}</span></p>
-      <p class="fact"><span class="fact-label">{s('now.workLabel')}</span> <span>{s('now.work')}</span></p>
-      <div role="document" class="sep"><h2 class="eyebrow">{s('now.projectsTitle')}</h2></div>
-      <p class="project"><strong>{s('projects.aresosName')}</strong> <span class="status building">{s('status.building')}</span><br>{s('projects.aresos')}</p>
-      <p class="project"><a href="{apps}"><strong>{s('projects.appsName')}</strong></a> <span class="status waiting">{s('status.waiting')}</span><br>{s('projects.apps')}</p>
-      <p class="project"><strong>{s('projects.companionsName')}</strong> <span class="status building">{s('status.building')}</span><br>{s('projects.companions', count=count)}</p>
+    <nav class="tiles" aria-label="{s('home.links')}">
+{tile("tile-apps", apps_url, f'<span class="stack">{stack}</span>', s('home.appsTitle'), s('home.appsSub'), external=False)}
+{tile("tile-github", links['github'], ICONS['github'], "GitHub", s('home.githubSub'), external=True)}
+{tile("tile-linkedin", links['linkedin'], ICONS['linkedin'], "LinkedIn", s('home.linkedinSub'), external=True)}
+    </nav>
+    <section class="current" aria-labelledby="current-title">
+      <div role="document"><h2 class="eyebrow" id="current-title">{s('projects.title')}</h2></div>
+      <ul class="projects">
+        {project('aresos', 'building')}
+        {project('apps', 'waiting')}
+        {project('companions', 'building')}
+      </ul>
     </section>
   </div>
 </main>"""
-    return body
 
 
-def phone(app: dict, lang: str, s: Strings) -> str:
-    screens = app.get("screens") or []
-    if screens:
-        first = screens[0]
-        inner = (f'<img src="/assets/img/apps/{esc(app["id"])}/{esc(first)}" alt="{esc(app["name"])}" '
-                 f'loading="lazy" decoding="async">')
-        return f'<div class="phone"><div class="screen">{inner}</div></div>'
-    return f"""<div class="phone" aria-hidden="true"><div class="screen placeholder">
-        <img src="/assets/img/apps/{esc(app['icon'])}" alt="" width="88" height="88">
-        <span class="screen-name">{esc(app['name'])}</span>
-        <span class="screen-note">{s('apps.screensSoon')}</span>
-      </div></div>"""
+def webp_size(path: Path) -> tuple[int, int]:
+    """Width and height of a WebP file (its VP8X, VP8L or VP8 header), for the img tag's width and height."""
+    head = path.read_bytes()[:30]
+    kind = head[12:16]
+    if kind == b"VP8X":
+        return 1 + int.from_bytes(head[24:27], "little"), 1 + int.from_bytes(head[27:30], "little")
+    if kind == b"VP8L":
+        bits = int.from_bytes(head[21:25], "little")
+        return 1 + (bits & 0x3FFF), 1 + ((bits >> 14) & 0x3FFF)
+    if kind == b"VP8 ":
+        return int.from_bytes(head[26:28], "little") & 0x3FFF, int.from_bytes(head[28:30], "little") & 0x3FFF
+    raise BuildError(f"{path.relative_to(ROOT)} is not a WebP file")
+
+
+def shots(app: dict, s: Strings) -> str:
+    """The app's pictures: for each look a front and a back iPhone. Every picture is in the page once, with a class
+    per role it plays (f-dark: in front in the dark look, b-light: behind in the light look); site.css shows the two
+    the current look needs. A look without its own pair uses dark's."""
+    pairs = app.get("shots") or {}
+    if not pairs:
+        return ""
+    roles: dict[str, list[str]] = {}
+    for look in LOOKS:
+        pair = pairs.get(look) or pairs.get("dark") or next(iter(pairs.values()))
+        for role, name in zip(("f", "b"), pair):
+            roles.setdefault(name, []).append(f"{role}-{look}")
+    imgs = []
+    for name, classes in roles.items():
+        path = STATIC / "img" / "apps" / app["id"] / f"{name}.webp"
+        if not path.exists():
+            raise BuildError(f"{path.relative_to(ROOT)} is missing: run tools/import-showcase.py")
+        w, h = webp_size(path)
+        imgs.append(f'<img class="shot {" ".join(classes)}" src="/assets/img/apps/{esc(app["id"])}/{esc(name)}.webp" '
+                    f'alt="" width="{w}" height="{h}" loading="lazy" decoding="async">')
+    return (f'<div class="shots" role="img" aria-label="{s("apps.shotAlt", name=app["name"])}">'
+            + "".join(imgs) + "</div>")
 
 
 def page_apps(lang: str, s: Strings, site: dict, apps: list[dict]) -> str:
@@ -243,7 +289,7 @@ def page_apps(lang: str, s: Strings, site: dict, apps: list[dict]) -> str:
         repo = (f'<a class="btn" href="{esc(app["repo"])}" rel="noopener">{ICONS["github"]}{s("apps.repo")}</a>'
                 if app.get("repo") else "")
         cards.append(f"""  <article class="card app app--{esc(app['id'])}" id="{esc(app['id'])}" aria-labelledby="{esc(app['id'])}-name">
-    {phone(app, lang, s)}
+    {shots(app, s)}
     <div class="app-body">
       <div class="app-head">
         <img class="app-icon" src="/assets/img/apps/{esc(app['icon'])}" alt="" width="64" height="64">
@@ -286,10 +332,12 @@ def page_legal(lang: str, which: str, site: dict) -> str:
 
 
 def apps_css(apps: list[dict]) -> str:
-    """Each app's accent, light and dark (a file, since the site allows no inline styles)."""
+    """Each app's accent: its light one in the light look, its dark one in the dark and red looks (a file, since the
+    site allows no inline styles)."""
     light = "".join(f".app--{a['id']} {{ --accent: {a['accent']['light']}; }}\n" for a in apps)
-    dark = "".join(f"  .app--{a['id']} {{ --accent: {a['accent']['dark']}; }}\n" for a in apps)
-    return f"/* Made by build.py from content/apps.json. */\n{light}@media (prefers-color-scheme: dark) {{\n{dark}}}\n"
+    dark = "".join(f":root:is([data-theme=\"dark\"], [data-theme=\"red\"]) .app--{a['id']} {{ --accent: {a['accent']['dark']}; }}\n"
+                   for a in apps)
+    return f"/* Made by build.py from content/apps.json. */\n{light}{dark}"
 
 
 # ---------- the build ----------
@@ -351,7 +399,7 @@ def build() -> list[str]:
         companions = {"lang": lang, "menu": menu, "defaults": site["companions"], "repo": site["repos"]["companions"]}
         write(PAGES["home"][lang], layout(lang, "home", s, site, title=s("meta.homeTitle"),
                                           description=s("meta.homeDescription"),
-                                          body=page_home(lang, s, site, count), companions=companions))
+                                          body=page_home(lang, s, site, count, apps), companions=companions))
         write(PAGES["apps"][lang], layout(lang, "apps", s, site, title=s("meta.appsTitle"),
                                           description=s("meta.appsDescription"),
                                           body=page_apps(lang, s, site, apps), extra_css=apps_css_url))

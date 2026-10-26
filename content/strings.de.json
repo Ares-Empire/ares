@@ -2,38 +2,34 @@
   "lang": { "name": "Deutsch", "short": "DE", "switchTo": "Auf Deutsch" },
   "meta": {
     "homeTitle": "Patrik Breeck",
-    "homeDescription": "Patrik Breeck baut iPhone-Apps, sein eigenes Betriebssystem und Pixel-Wesen, die auf deinem Bildschirm leben.",
+    "homeDescription": "Patrik Breeck: Wirtschaftsinformatik-Student an der TUM, tätig bei Munich Re, entwickelt nebenbei iPhone-Apps und Software.",
     "appsTitle": "Ares-Apps · Patrik Breeck",
-    "appsDescription": "Native iPhone-Apps, die Patrik Breeck unter dem Namen Ares baut: Aresium, Arestemis, Arestoteles und Aresus.",
+    "appsDescription": "Native iPhone-Apps von Patrik Breeck: Aresium, Arestemis, Arestoteles und Aresus.",
     "imprintTitle": "Impressum · Patrik Breeck",
     "privacyTitle": "Datenschutzerklärung · Patrik Breeck"
   },
-  "nav": { "home": "Patrik Breeck", "back": "Zurück zum Start" },
+  "nav": { "home": "Patrik Breeck" },
+  "looks": { "label": "Darstellung", "light": "Hell", "dark": "Dunkel", "red": "Rot und Gold" },
   "home": {
-    "aka": "Auch bekannt als Ares",
-    "lead": "Ich baue iPhone-Apps, mein eigenes Betriebssystem und die kleinen Pixel-Wesen, die hier herumlaufen.",
-    "apps": "Ares-Apps",
-    "links": "Links"
-  },
-  "now": {
-    "title": "Aktuell",
-    "studyLabel": "Studium",
-    "study": "Wirtschaftsinformatik (B.Sc.), 3. Semester",
-    "workLabel": "Arbeit",
-    "work": "Vollzeit bei Munich Re",
-    "projectsTitle": "Projekte"
+    "lead": "Wirtschaftsinformatik-Student an der TUM, tätig bei Munich Re. Nebenbei entwickle ich Software, von iPhone-Apps, die alle ausprobieren und mit Feature-Wünschen mitgestalten können, bis zu den Pixel-Companions auf dieser Seite.",
+    "links": "Links",
+    "appsTitle": "iPhone-Apps",
+    "appsSub": "Ausprobieren, Features wünschen",
+    "githubSub": "Code und Projekte",
+    "linkedinSub": "Werdegang und Kontakt"
   },
   "projects": {
+    "title": "Aktuelle Projekte",
     "aresosName": "AresOS",
-    "aresos": "Mein eigenes Betriebssystem: ein Linux, das in eine Minecraft-Welt startet, in der die Apps leben.",
+    "aresos": "KI-natives Betriebssystem, das den ganzen Computer aus Minecraft heraus steuert.",
     "appsName": "Ares-Apps",
-    "apps": "Vier native iPhone-Apps auf Deutsch und Englisch, hell und dunkel, mit einem Konto für alle.",
+    "apps": "Native iPhone-Apps für Finanzen, Wohnungssuche, Wissen und Server-Monitoring, mit einem gemeinsamen Konto.",
     "companionsName": "Companions",
-    "companions": "{count} Pixel-Wesen für jeden Bildschirm, jedes mit eigenen Moves. Ein paar davon wohnen auf dieser Seite."
+    "companions": "{count} animierte Pixel-Figuren für jeden Bildschirm, jede mit eigenen Moves, Skins und Outfits."
   },
   "status": {
     "building": "In Entwicklung",
-    "waiting": "Wartet auf Apple"
+    "waiting": "Bald auf TestFlight"
   },
   "footer": {
     "imprint": "Impressum",
@@ -42,20 +38,16 @@
   },
   "apps": {
     "title": "Ares-Apps",
-    "lead": "Native iPhone-Apps, die ich unter dem Namen Ares baue. Jede spricht Deutsch und Englisch, hat ein helles und ein dunkles Design, und alle teilen sich ein Ares-Konto.",
-    "state": "Fertig gebaut und getestet. Sobald Apple das Entwicklerkonto freigibt, kommen sie per TestFlight aufs iPhone.",
-    "shared": ["Deutsch und Englisch", "Hell und dunkel", "Ein Ares-Konto"],
+    "lead": "Native SwiftUI-Apps fürs iPhone: Finanzen, Wohnungssuche, eine Wissenssammlung und Server-Monitoring. Jede spricht Deutsch und Englisch, kommt hell und dunkel und teilt sich ein Konto mit den anderen.",
+    "state": "Fertig gebaut und getestet. Verfügbar über TestFlight, sobald Apple das Entwicklerkonto freigibt; alle sind eingeladen, sie auszuprobieren und sich Features zu wünschen.",
+    "shared": ["Deutsch und Englisch", "Hell und dunkel", "Ein gemeinsames Konto"],
     "request": "Zugang anfragen",
-    "requestNote": "Anfragen laufen vorerst über das Kontaktformular. Ich prüfe jede und schicke eine TestFlight-Einladung.",
-    "personal": "Persönliche App",
-    "personalNote": "Sie zeigt nur meine eigenen Daten und bleibt deshalb bei mir.",
+    "requestNote": "Zugang auf Anfrage: Jede Anfrage wird persönlich geprüft und mit einer TestFlight-Einladung beantwortet.",
+    "personal": "Vorerst für den persönlichen Gebrauch",
+    "personalNote": "Noch nicht für Anfragen offen.",
     "repo": "Code auf GitHub",
-    "screensSoon": "Screenshots folgen",
+    "shotAlt": "{name} auf dem iPhone",
     "privacy": "Datenschutzerklärung der Apps"
-  },
-  "legal": {
-    "imprint": "Impressum",
-    "privacy": "Datenschutzerklärung"
   },
   "menu": {
     "say": "Pass uns an!",
@@ -74,7 +66,7 @@
     "failed": "Die Companions konnten nicht geladen werden.",
     "close": "Schließen",
     "reset": "Zurücksetzen",
-    "footer": "Companions ist mein Projekt für Pixel-Wesen auf jedem Bildschirm. Der Code kommt auf GitHub, sobald er so weit ist.",
+    "footer": "Companions: animierte Pixel-Figuren für jeden Bildschirm, in Entwicklung. Der Code wird auf GitHub veröffentlicht.",
     "repo": "Companions auf GitHub",
     "groups": { "Originals": "Originale", "Apps": "Apps", "Mascots": "Maskottchen", "Minecraft": "Minecraft", "Others": "Weitere" },
     "skins": {

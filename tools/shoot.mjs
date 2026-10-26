@@ -1,4 +1,4 @@
-// Screenshots of the site, desktop and phone, dark and light: node tools/shoot.mjs <outdir> [base] [pages...]
+// Screenshots of the site, desktop and phone, in each look (light, dark, red): node tools/shoot.mjs <outdir> [base] [pages...]
 // base defaults to the local build (python3 -m http.server 8790 --directory dist); for the live site pass
 // https://patrikbreeck.com and set SITE_AUTH=user:password while it is behind the password.
 import { chromium } from 'playwright';
@@ -10,13 +10,14 @@ const views = [
   { name: 'desktop', viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 },
   { name: 'phone', viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true },
 ];
-const schemes = ['dark', 'light'];
+const looks = (process.env.LOOKS || 'light,dark,red').split(',');
 
 const browser = await chromium.launch();
 for (const v of views) {
-  for (const scheme of schemes) {
+  for (const look of looks) {
     const auth = process.env.SITE_AUTH?.split(':');
-    const ctx = await browser.newContext({ ...v, colorScheme: scheme, ...(auth ? { httpCredentials: { username: auth[0], password: auth.slice(1).join(':') } } : {}) });
+    const ctx = await browser.newContext({ ...v, colorScheme: look === 'light' ? 'light' : 'dark', ...(auth ? { httpCredentials: { username: auth[0], password: auth.slice(1).join(':') } } : {}) });
+    if (look === 'red') await ctx.addInitScript(() => localStorage.setItem('look', 'red'));   // red is only ever chosen
     const page = await ctx.newPage();
     const errors = [];
     page.on('console', m => { if (m.type() === 'error' || m.type() === 'warning') errors.push(`${m.type()}: ${m.text()}`); });
@@ -26,10 +27,10 @@ for (const v of views) {
     for (const p of pages) {
       await page.goto(base + p, { waitUntil: 'networkidle' });
       await page.waitForTimeout(p.match(/^\/(en|de)\/$/) ? 5000 : 600);
-      const file = `${out}/${v.name}-${scheme}${p.replace(/\//g, '_')}.png`;
+      const file = `${out}/${v.name}-${look}${p.replace(/\//g, '_')}.png`;
       await page.screenshot({ path: file, fullPage: true });
     }
-    if (errors.length) console.log(`${v.name}/${scheme}:\n  ` + [...new Set(errors)].join('\n  '));
+    if (errors.length) console.log(`${v.name}/${look}:\n  ` + [...new Set(errors)].join('\n  '));
     await ctx.close();
   }
 }

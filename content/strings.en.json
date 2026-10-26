@@ -2,38 +2,34 @@
   "lang": { "name": "English", "short": "EN", "switchTo": "In English" },
   "meta": {
     "homeTitle": "Patrik Breeck",
-    "homeDescription": "Patrik Breeck builds iPhone apps, his own operating system and pixel creatures that live on your screen.",
+    "homeDescription": "Patrik Breeck: Information Systems student at TUM, working at Munich Re, building iPhone apps and software on the side.",
     "appsTitle": "Ares apps · Patrik Breeck",
-    "appsDescription": "Native iPhone apps Patrik Breeck builds under the name Ares: Aresium, Arestemis, Arestoteles and Aresus.",
+    "appsDescription": "Native iPhone apps by Patrik Breeck: Aresium, Arestemis, Arestoteles and Aresus.",
     "imprintTitle": "Imprint · Patrik Breeck",
     "privacyTitle": "Privacy policy · Patrik Breeck"
   },
-  "nav": { "home": "Patrik Breeck", "back": "Back to the start" },
+  "nav": { "home": "Patrik Breeck" },
+  "looks": { "label": "Look", "light": "Light", "dark": "Dark", "red": "Red and gold" },
   "home": {
-    "aka": "Also known as Ares",
-    "lead": "I build iPhone apps, my own operating system and the little pixel creatures walking around this page.",
-    "apps": "Ares apps",
-    "links": "Links"
-  },
-  "now": {
-    "title": "Now",
-    "studyLabel": "Studying",
-    "study": "Business Informatics (B.Sc.), 3rd semester",
-    "workLabel": "Working",
-    "work": "Full-time at Munich Re",
-    "projectsTitle": "Projects"
+    "lead": "Information Systems student at TUM, working at Munich Re. I build software on the side, from iPhone apps anyone can try and help shape with feature requests to the pixel companions on this page.",
+    "links": "Links",
+    "appsTitle": "iPhone apps",
+    "appsSub": "Try them, request features",
+    "githubSub": "Code and projects",
+    "linkedinSub": "Experience and contact"
   },
   "projects": {
+    "title": "Currently building",
     "aresosName": "AresOS",
-    "aresos": "My own operating system: a Linux that boots into a Minecraft world, with the apps living in the game.",
+    "aresos": "AI-native operating system that runs the whole computer from inside Minecraft.",
     "appsName": "Ares apps",
-    "apps": "Four native iPhone apps in English and German, light and dark, with one account for all of them.",
+    "apps": "Native iPhone apps for finance, flat hunting, knowledge and server monitoring, on one shared account.",
     "companionsName": "Companions",
-    "companions": "{count} pixel creatures for any screen, each with moves of its own. A few of them live on this page."
+    "companions": "{count} animated pixel characters for any screen, each with its own moves, skins and outfits."
   },
   "status": {
     "building": "In development",
-    "waiting": "Waiting for Apple"
+    "waiting": "TestFlight soon"
   },
   "footer": {
     "imprint": "Imprint",
@@ -42,20 +38,16 @@
   },
   "apps": {
     "title": "Ares apps",
-    "lead": "Native iPhone apps I build under the name Ares. Each one speaks English and German, has a light and a dark look, and they all share one Ares account.",
-    "state": "Built and tested. They come to the iPhone via TestFlight as soon as Apple approves the developer account.",
-    "shared": ["English and German", "Light and dark", "One Ares account"],
+    "lead": "Native SwiftUI apps for the iPhone: personal finance, flat hunting, a knowledge vault and server monitoring. Each one speaks English and German, comes in light and dark, and shares one account with the others.",
+    "state": "Built and tested. Available via TestFlight as soon as Apple approves the developer account; anyone is welcome to try them and request features.",
+    "shared": ["English and German", "Light and dark", "One shared account"],
     "request": "Request access",
-    "requestNote": "Requests go through the contact form for now. I approve each one and send a TestFlight invite.",
-    "personal": "Personal app",
-    "personalNote": "It shows only my own data, so it stays mine.",
+    "requestNote": "Access is by request: each one is approved personally and answered with a TestFlight invite.",
+    "personal": "Personal use for now",
+    "personalNote": "Not open for requests yet.",
     "repo": "Code on GitHub",
-    "screensSoon": "Screenshots follow",
+    "shotAlt": "{name} on the iPhone",
     "privacy": "Privacy policy of the apps"
-  },
-  "legal": {
-    "imprint": "Imprint",
-    "privacy": "Privacy policy"
   },
   "menu": {
     "say": "Customize us!",
@@ -74,7 +66,7 @@
     "failed": "The companions could not be loaded.",
     "close": "Close",
     "reset": "Start over",
-    "footer": "Companions is my project of pixel creatures for any screen. The code goes public on GitHub once it's ready.",
+    "footer": "Companions: animated pixel characters for any screen, in development. The code will be published on GitHub.",
     "repo": "Companions on GitHub",
     "groups": { "Originals": "Originals", "Apps": "Apps", "Mascots": "Mascots", "Minecraft": "Minecraft", "Others": "Others" },
     "skins": {

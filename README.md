@@ -2,7 +2,8 @@
 
 Patrik's personal site, **patrikbreeck.com**: who he is, what he builds (AresOS, the Ares iPhone apps, Companions),
 links to GitHub and LinkedIn, and a few of his pixel companions living on the page. Visitors can pick which
-companions appear and how they look ("Customize us!"). English and German, light and dark.
+companions appear and how they look ("Customize us!"). English and German, in three looks chosen in the header:
+light, dark, and red and gold (without a choice, the system's light or dark setting decides).
 
 **Status: in development.** Live on this server behind a password (Caddy basic auth, user `ares`), not indexed.
 "Going public" below lists what changes on launch.
@@ -19,11 +20,13 @@ languages.
 | `content/strings.en.json`, `strings.de.json` | Every text on the site. Both files must have the same keys: the build fails otherwise. |
 | `content/apps.json` | The apps page: each app's text in both languages, its accent, whether others can request it, its repo once public, its screenshots. |
 | `content/legal/` | Imprint and privacy policy, one file per language, with `{{placeholders}}` filled from `site.json`. |
-| `static/` | CSS, the companions host (`js/companions.js`), the font, images, favicon. Copied to `/assets/`. |
+| `static/` | CSS, the look switcher (`js/theme.js`), the companions host (`js/companions.js`), the font, images, favicon. Copied to `/assets/`. |
+| `static/img/apps/<app>/` | The apps' pictures, imported from empire-ios's showcase by `tools/import-showcase.py` (`SOURCE` names the commit). |
 | `vendor/companions` | The companions repo as a git submodule, pinned to one commit. Its `engine/` and `companions/` are copied to `/companions/`. |
 | `build.py` | Makes `dist/` from the above (Python 3, no packages). |
 | `deploy.sh` | Builds and swaps the result into `/srv/ares`, which Caddy serves. |
-| `tools/shoot.mjs` | Screenshots of every page (desktop and phone, light and dark), for checking a change without a screen. |
+| `tools/shoot.mjs` | Screenshots of pages (desktop and phone, in every look), for checking a change without a screen. |
+| `tools/import-showcase.py` | Copies the app pictures `content/apps.json` names from `empire-ios/showcase/`, sized for the web (needs Pillow). |
 
 Pages: `/en/`, `/en/apps/`, `/en/imprint/`, `/en/privacy/` and `/de/`, `/de/apps/`, `/de/impressum/`,
 `/de/datenschutz/`. Caddy sends `/` (and `/hi`, the address for the NFC tag) to `/de/` when the browser prefers
@@ -42,18 +45,24 @@ node tools/shoot.mjs /tmp/shots   # screenshots of the local build (needs Playwr
 The build stops, with the reason, when a text exists in only one language, a placeholder is left unfilled, or a
 page would load something from another host.
 
-### Screenshots of the apps
+### The apps' pictures
 
-The apps page shows each app in a drawn iPhone. Until there are screenshots, the phone shows the app's icon. To add
-them: run the app in the simulator with sample data (`-sampleData`, see `empire-ios/CLAUDE.md`), take
-`xcrun simctl io booted screenshot <file>.png`, scale it to about 600 px wide (WebP or PNG), put it in
-`static/img/apps/<app id>/` and list the file name in that app's `screens` in `content/apps.json`.
+The apps page shows two iPhones per app: in front the screen for the current look, behind it another one. The pictures
+come from `empire-ios/showcase/` (made on the Mac by its `scripts/showcase.py`: each screen in a drawn iPhone, sample
+data only). `content/apps.json` → `shots` names, per look, the front and back picture. After the showcase is re-shot
+or a shot is changed:
+
+```sh
+python3 tools/import-showcase.py ../empire-ios    # writes static/img/apps/<app>/*.webp and SOURCE
+python3 build.py
+```
 
 ### The companions
 
 `static/js/companions.js` runs the engine from `vendor/companions` on the home page. Everything the page marks as a
 `.window` (with an id) is a surface they stand on, text inside a `[role=document]` is somewhere to sit, and the
-bottom of the page is the floor. To use a newer engine:
+bottom of the page is the floor. Surfaces higher up the page are stacked above lower ones, so a companion never
+covers what is above it. To use a newer engine:
 
 ```sh
 git -C vendor/companions fetch && git -C vendor/companions checkout origin/main
@@ -68,12 +77,11 @@ companions repo (`engine/host.js`), so this copy goes away.
 
 1. The LinkedIn address in `content/site.json` (the build warns while it is a placeholder).
 2. Patrik reads the imprint and privacy policy in both languages.
-3. Screenshots of the apps (above), if they should be there at launch.
-4. `content/site.json` → `"public": true` (removes the noindex tag and the robots block), then `./deploy.sh`.
-5. In `/etc/caddy/Caddyfile` (block `patrikbreeck.com`): delete `basic_auth` and the `X-Robots-Tag` line, then
+3. `content/site.json` → `"public": true` (removes the noindex tag and the robots block), then `./deploy.sh`.
+4. In `/etc/caddy/Caddyfile` (block `patrikbreeck.com`): delete `basic_auth` and the `X-Robots-Tag` line, then
    `caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy`.
-6. Add the site to `ares-empire/docs/PRIVACY.md` (what it processes: no access log, error entries 14 days, the
-   companions' choices in the browser).
+5. Add the site to `ares-empire/docs/PRIVACY.md` (what it processes: no access log, error entries 14 days, the
+   look and companions' choices in the browser).
 
 Once the site is public, the companions' code and designs can be read by anyone from the site, even while their
 repo is private.

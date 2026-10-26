@@ -364,9 +364,24 @@ const bubble = (() => {
     drawText(ctx, text, PAD * u, PAD * u, u, INK);
   }
 
-  // Someone free, not sitting on a line of text (the bubble over its head would cover the text above).
+  // Where the bubble would be over this companion's head, in the scene's coordinates.
+  function placeFor(c) {
+    const b = c.bbox;
+    if (!b) return null;
+    const l = clamp((b.l + b.r) / 2 - w / 2, 4, Math.max(4, env.W - w - 4)), t = Math.max(4, b.t - h - 4);
+    return { l, t, r: l + w, b: t + h };
+  }
+  // The bubble covers nothing of the page: no heading, text or tile.
+  function clear(place) {
+    const s = scene.getBoundingClientRect();
+    return ![...scene.querySelectorAll('h1, h2, p, .tile')].some(el => {
+      const q = el.getBoundingClientRect(), l = q.left - s.left, t = q.top - s.top;
+      return place.l < l + q.width && place.r > l && place.t < t + q.height && place.b > t;
+    });
+  }
+  // Someone free, not sitting on a line of text, whose bubble would cover nothing.
   function speaker() {
-    const ok = c => c && free(c) && c.anchor?.ledge?.kind !== 'text';
+    const ok = c => c && free(c) && c.anchor?.ledge?.kind !== 'text' && placeFor(c) && clear(placeFor(c));
     return (config.defaults?.speakers || []).map(id => all[id]).find(ok) || cast.find(ok) || null;
   }
 
@@ -385,10 +400,11 @@ const bubble = (() => {
     if (!button) return;
     if (until && (now > until || !cast.includes(me) || me.sleeping || me.atHome)) hide();
     if (!until && now > next && !document.querySelector('dialog.cm[open]')) show(now);
-    if (!until || !me?.bbox) return;
-    const b = me.bbox;
-    button.style.left = clamp((b.l + b.r) / 2 - w / 2, 4, Math.max(4, env.W - w - 4)) + 'px';
-    button.style.top = Math.max(4, b.t - h - 4) + 'px';
+    if (!until || !me) return;
+    const place = placeFor(me);
+    if (!place) return;
+    button.style.left = place.l + 'px';
+    button.style.top = place.t + 'px';
   }
 
   return { make, hide, tick };
@@ -573,11 +589,20 @@ function startOver() {
 }
 
 // ---------- start ----------
+// Surfaces higher up the page are stacked above the ones below (inline z-index, which the engine reads as window
+// order): world.js counts a spot as hidden when a window stacked above overlaps it, so a companion never stands where
+// it would cover what is above it (the tiles stacked close together on a phone). The canvas stays above them all.
+function stackSurfaces() {
+  const surfaces = [...scene.querySelectorAll('.window')];
+  surfaces.forEach((el, i) => { el.style.zIndex = String(surfaces.length - i); });
+}
+
 async function start() {
   canvas = Object.assign(document.createElement('canvas'), { className: 'companions-stage' });
   canvas.setAttribute('aria-hidden', 'true');
   scene.append(canvas);
   env.ctx = canvas.getContext('2d');
+  stackSurfaces();
   initWorld(scene);
   resize();
   new ResizeObserver(resize).observe(scene);
