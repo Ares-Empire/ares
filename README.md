@@ -20,11 +20,12 @@ languages.
 | `content/strings.en.json`, `strings.de.json` | Every text on the site. Both files must have the same keys: the build fails otherwise. |
 | `content/apps.json` | The apps page: each app's text in both languages, its accent, whether others can request it, its repo once public, its screenshots. |
 | `content/legal/` | Imprint and privacy policy, one file per language, with `{{placeholders}}` filled from `site.json`. |
-| `static/` | CSS, the look switcher (`js/theme.js`), the background line (`js/flow.js`), the companions host (`js/companions.js`), the font, images, favicon. Copied to `/assets/`. |
+| `static/` | CSS, the look switcher (`js/theme.js`), the background line (`js/flow.js`), the companions' bubble and menu (`js/companions.js`), the font, images, favicon. Copied to `/assets/`. |
 | `static/img/apps/<app>/` | The apps' pictures, imported from empire-ios's showcase by `tools/import-showcase.py` (`SOURCE` names the commit). |
-| `vendor/companions` | The companions repo as a git submodule, pinned to one commit. Its `engine/` and `companions/` are copied to `/companions/`. |
-| `build.py` | Makes `dist/` from the above (Python 3, no packages). |
+| `vendor/companions` | The companions repo as a git submodule, pinned to one commit. Its website embed is built into one file, `/companions/companions.min.js`. |
+| `build.py` | Makes `dist/` from the above (Python 3, no packages; it runs Node only to build the companions' file). |
 | `deploy.sh` | Builds and swaps the result into `/srv/ares`, which Caddy serves. |
+| `tools/serve.py` | Serves `dist/` locally with the Content-Security-Policy the server sends. |
 | `tools/shoot.mjs` | Screenshots of pages (desktop and phone, in every look), for checking a change without a screen. |
 | `tools/import-showcase.py` | Copies the app pictures `content/apps.json` names from `empire-ios/showcase/`, sized for the web (needs Pillow). |
 
@@ -36,15 +37,17 @@ and `/privacy` lead to their pages.
 ## Working on it
 
 ```sh
-git submodule update --init       # once, after cloning
-python3 build.py                  # makes dist/
-python3 -m http.server 8790 --bind 127.0.0.1 --directory dist   # then open http://127.0.0.1:8790/en/
-node tools/shoot.mjs /tmp/shots   # screenshots of the local build (needs Playwright; the server has it)
-./deploy.sh                       # on the server: build and put it live
+git submodule update --init                # once, after cloning
+npm ci --prefix vendor/companions/web      # once, and after the submodule moves: esbuild, for the companions' file
+python3 build.py                           # makes dist/ (needs Node 22 or newer; the server has 24)
+python3 tools/serve.py                     # serves dist/ with the server's CSP; open http://127.0.0.1:8790/en/
+node tools/shoot.mjs /tmp/shots            # screenshots of the local build (needs Playwright; the server has it)
+./deploy.sh                                # on the server: build and put it live
 ```
 
-The build stops, with the reason, when a text exists in only one language, a placeholder is left unfilled, or a
-page would load something from another host.
+The build stops, with the reason, when a text exists in only one language, a placeholder is left unfilled, a page
+would load something from another host, or Node or esbuild is missing (it says what to run). Look at the pages through
+`tools/serve.py`: the browser then reports anything the server's Content-Security-Policy would block.
 
 ### The apps' pictures
 
@@ -60,19 +63,35 @@ python3 build.py
 
 ### The companions
 
-`static/js/companions.js` runs the engine from `vendor/companions` on the home page. Everything the page marks as a
-`.window` (with an id) is a surface they stand on, text inside a `[role=document]` is somewhere to sit, and the
-bottom of the page is the floor. Surfaces higher up the page are stacked above lower ones, so a companion never
-covers what is above it. To use a newer engine:
+The companions are the companions repo's website embed (`vendor/companions/web`; its `README.md` documents the tag,
+the API and what it stores). `build.py` builds it from the pinned submodule into `/companions/companions.min.js`, with
+every companion inside so visitors can pick any of them, and the home page loads it with `data-autostart="false"` and
+`data-settings-button="false"`. The embed finds places on the page by itself (the name, lines of text, the tiles' top
+edges) and never stands where it would cover text; a click on a companion never reaches the page, and on a phone
+touching one holds it instead of scrolling. Where it chooses wrong, `data-companions-surface` (stand on this element's
+top edge) and `data-companions-ignore` (leave this alone) correct it. The home page marks the tiles' insides
+`data-companions-ignore` (`build.py` → `tile`): companions stand on a tile's top edge, not on the button itself, where
+they would take part of its click area and leave no room for the bubble.
+
+`static/js/companions.js` is the site's part, on the embed's API (`window.Companions`) only, with no engine code. It
+starts them with `content/site.json` → `companions` (`desktop`, and `phone` for phones, at a smaller size), shows the
+"Customize us!" bubble over one of them now and then (`speakers` first; never over a heading, text, a tile or a
+control), and builds the translated menu (`content/strings.*.json` → `menu`), opened by the bubble and by every
+`[data-companions-menu]` button (the footer's). The visitor's choices are the embed's: localStorage under
+`companions.` (and `companions.menuSeen`, the site's), the Motion choice in sessionStorage for the visit; "Start over"
+removes them. Choices saved by the site's earlier host of its own (`companion.<id>`) are moved over once.
+
+To use a newer companions version:
 
 ```sh
 git -C vendor/companions fetch && git -C vendor/companions checkout origin/main
-git add vendor/companions && git commit -m "Companions: engine <commit>"
+npm ci --prefix vendor/companions/web
+python3 build.py                  # then look at the home page as above, menu and bubble included
+git add vendor/companions && git commit -m "Companions: <commit>"
 ```
 
-Part of `companions.js` is a copy of the companions preview's host (`preview/main.js`, `preview/panel.js`): see
-the note at its top. When the engine changes how it is run, compare the two. The plan is a shared host in the
-companions repo (`engine/host.js`), so this copy goes away.
+When the embed's API changes, `static/js/companions.js` follows it. Something the menu needs and the API lacks goes
+into the embed, not into a copy here.
 
 ## Ideas
 

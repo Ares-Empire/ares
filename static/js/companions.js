@@ -1,421 +1,129 @@
-// The companions on this site. The engine is the companions repo itself (vendor/companions, pinned as a git
-// submodule and copied to /companions/ by build.py); this file is the host that runs it on a web page, the job
-// preview/main.js does for the companions' own preview, plus the "customize us!" menu.
-//
-// TEMPORARY COPY: running actions (settle, run, runGroup), the frame loop, the director, picking companions up
-// and drawPortrait/paintSwatch follow preview/main.js and preview/panel.js of companions 8c14563. They belong in
-// the companions repo as one shared host (engine/host.js) used by the preview, this site and AresOS; when that
-// exists, this file keeps only the page-specific parts (the bubble and the menu). Until then, keep them in step.
-//
-// The page marks what companions can stand on: every `.window` element (its top edge; each needs an id), text in
-// a `[role=document]` inside one (they sit at the end of a line), and the floor (the bottom of [data-companions]).
-// Choices are kept only in this browser (localStorage), and only after the visitor changes something.
+// The companions on the home page. They are the Companions website embed (vendor/companions/web, built by build.py
+// into /companions/companions.min.js, whose tag comes just before this file): it draws them, finds their places on
+// the page, lets visitors pick them up and keeps their choices in this browser. This file only uses its API,
+// window.Companions (vendor/companions/web/README.md): it starts them with the site's defaults (content/site.json)
+// and adds the site's own parts, the "Customize us!" bubble and the translated menu. No engine code here.
 
-import { env, clamp, rand, pick, weighted, Cancelled, frame, startRun } from '/companions/engine/core.js';
-import { skinEffects, skinsFor, lookFor, SKINS } from '/companions/engine/skins.js';
-import { cast, makeCompanion, morph, drawCompanion, spotPoint, spotScale, scaleOf, applyRest, resetPose, snapShape, setShape, SIZES } from '/companions/engine/companion.js';
-import { pace, gatherings } from '/companions/engine/activity.js';
-import { initWorld, visibleOn, surfaceBelow, FLOOR, castleLeft } from '/companions/engine/world.js';
-import { drawStage, drawStageFront, clearProps } from '/companions/engine/stage.js';
-import * as fx from '/companions/engine/particles.js';
-import { travelTo, arrive, fallDown, baseOf } from '/companions/engine/travel.js';
-import * as acts from '/companions/engine/acts.js';
-import * as together from '/companions/engine/together.js';
-import { loadDesigns } from '/companions/engine/designs.js';
-import { can, attackStyle } from '/companions/engine/catalog.js';
-import { applySettings, settingsOf } from '/companions/engine/settings.js';
-import { OUTFITS } from '/companions/engine/outfits.js';
-import { drawText, textWidth } from '/companions/engine/pixelfont.js';
-
-const scene = document.querySelector('[data-companions]');
 const config = JSON.parse(document.getElementById('companions-config')?.textContent || '{}');
 const T = config.menu || {};
-const GROUP_ORDER = ['Originals', 'Apps', 'Mascots', 'Minecraft'];
-const KEY_ON = 'companions.onScreen', KEY_SEEN = 'companions.menuSeen', keyOf = id => `companion.${id}`;
-const phone = () => matchMedia('(max-width: 600px)').matches;
+const defaults = config.defaults || {};
+const C = window.Companions;
+const KEY_SEEN = 'companions.menuSeen';      // the menu was opened once: the bubble asks less often
+const MOTIONS = ['moving', 'still', 'hidden'];
 
 // localStorage can be off (private windows, blocked site data): then nothing is remembered.
 const store = {
-  get(k, d = null) { try { return localStorage.getItem(k) ?? d; } catch { return d; } },
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); } catch { /* not remembered */ } },
-  clear() {
-    try { for (const k of Object.keys(localStorage)) if (k.startsWith('companion')) localStorage.removeItem(k); } catch { /* nothing to clear */ }
-  },
 };
+const rand = (lo, hi) => lo + Math.random() * (hi - lo);
 
-const all = {};                    // id -> companion, once its design is loaded
-let index = [];                    // every companion id, in the repo's order
-let canvas;
-
-// ---------- the companions themselves ----------
-function loadSettings(id) {
-  try { return JSON.parse(store.get(keyOf(id), '{}')) || {}; } catch { return {}; }
-}
-
-// The companions for these ids, loading the designs not loaded yet.
-async function ensure(ids) {
-  const missing = ids.filter(id => !all[id] && index.includes(id));
-  if (missing.length) {
-    const designs = await loadDesigns(missing);
-    for (const [id, design] of Object.entries(designs)) {
-      const me = makeCompanion(design, env.S);
-      applySettings(me, loadSettings(id));
-      all[id] = me;
-    }
-  }
-  return ids.map(id => all[id]).filter(Boolean);
-}
-
-const state = {
-  alive: () => true,
-  chatOpen: () => false,
-  idleFor: () => performance.now() - lastInput,
-  wakeUp: me => {
-    if (me.wakeRequest) { me.wakeRequest = false; return true; }
-    const now = performance.now();
-    if (now - lastKey < 500) return true;
-    return moves.filter(m => now - m.t < 2000).reduce((sum, m) => sum + m.d, 0) > 600;
-  },
-};
-let lastInput = performance.now(), lastKey = 0, pointer = null;
-const moves = [];
-
-// ---------- running actions (as preview/main.js) ----------
-function settle(me, snap) {
-  if (snap && me.moving && me.dest && spotPoint(me, me.dest)) arrive(me, me.dest);
-  me.moving = false; me.dest = null; me.held = false; me.sleeping = false; me.dancing = false;
-  clearProps(me); me.chair = me.bed = me.speaker = me.stand = null;
-  if ('restoreHead' in me) { me.outfit = { ...me.outfit, head: me.restoreHead }; delete me.restoreHead; }
-  if (me.anchor && !spotPoint(me, me.anchor)) me.anchor = null;
-  if (snap && !me.anchor && !me.atHome) {
-    const below = surfaceBelow(me.x, me.y - 1), g = below.g, s = env.S;
-    arrive(me, { ledge: below.ledge, dx: clamp(me.x, g.x1 + 9 * s, Math.max(g.x1 + 9 * s, g.x2 - 9 * s)) - g.x1, rest: 'stand' });
-  }
-  resetPose(me);
-  if (me.anchor) applyRest(me, me.anchor); else setShape(me, 'normal');
-  snapShape(me);
-  Object.assign(me, { jump: 0, bob: 0, chute: 0, sink: 0, think: false, typing: false, alpha: me.atHome ? 0 : 1 });
-  me.pose.stride = 0;
-}
-
-const STOP_WAIT = 250;
-const stopped = me => Promise.race([me.running, new Promise(r => setTimeout(r, STOP_WAIT))]);
-
-function run(me, action, { snap = true } = {}) {
-  const g = startRun(me), before = stopped(me);
-  me.idle = false;
-  me.running = (async () => {
-    await before;
-    if (g.n !== me.gen) return;
-    settle(me, snap);
-    try { await action(g); await acts.aliveLoop(g, state); }
-    catch (e) { if (!(e instanceof Cancelled)) console.error(e); }
-  })();
-}
-
-function runGroup(members, script) {
-  const gs = members.map(me => startRun(me)), before = Promise.all(members.map(stopped));
-  for (const me of members) me.idle = false;
-  const group = (async () => {
-    await before;
-    if (gs.some((g, i) => g.n !== members[i].gen)) {
-      gs.forEach((g, i) => { if (members[i].gen === g.n) run(members[i], async () => {}); });
-      return;
-    }
-    for (const me of members) settle(me, true);
-    try { await script(gs); }
-    catch (e) { if (!(e instanceof Cancelled)) console.error(e); }
-    gs.forEach((g, i) => { if (members[i].gen === g.n) run(members[i], async () => {}); });
-  })();
-  for (const me of members) me.running = group;
-}
-const runPair = (A, B, script) => runGroup([A, B], ([gA, gB]) => script(gA, gB));
-const free = me => cast.includes(me) && me.idle && !me.sleeping && !me.held && !me.atHome && !me.dancing;
-
-const joinParty = (me, P) => run(me, g => together.danceAlong(g, P));
-function startParty(host) {
-  run(host, async g => {
-    await acts.comeOut(g);
-    await together.party(g, P => {
-      for (const me of cast) {
-        if (me === host || !can(me, 'party.join')) continue;
-        if (me.sleeping) me.wakeRequest = true;
-        else if (free(me)) joinParty(me, P);
-      }
-    });
-  });
-}
-
-acts.hooks.helpNeeded = (mite, victim) => {
-  const helpers = cast.filter(me => me !== victim && free(me) && attackStyle(me.design) !== 'flee' && can(me, 'endermite'));
-  if (!helpers.length) return false;
-  const helper = helpers.reduce((a, b) => (Math.hypot(a.x - mite.x, a.y - mite.y) < Math.hypot(b.x - mite.x, b.y - mite.y) ? a : b));
-  run(helper, g => acts.helpFight(g, mite));
-  return true;
-};
-acts.hooks.makeRoom = (players, reach = 22 * env.S) => {
-  for (const me of cast) {
-    if (players.includes(me) || me.held || me.sleeping) continue;
-    if (players.some(p => Math.abs(p.x - me.x) < reach && Math.abs(p.y - me.y) < 10 * env.S)) run(me, g => acts.goNear(g));
-  }
-};
-acts.hooks.playWith = (me, others, script) => {
-  if (!others.length || !others.every(free)) return false;
-  runGroup([me, ...others], script);
-  return true;
-};
-
-// ---------- on the page or not ----------
-function setOnScreen(me, on, { save = true } = {}) {
-  if (on === cast.includes(me)) return;
-  if (!on) {
-    me.gen++;
-    clearProps(me); me.babies.length = 0;
-    fx.puff(me.x, me.y - 4 * me.s, me.s);
-    cast.splice(cast.indexOf(me), 1);
-  } else {
-    cast.push(me);
-    const spot = acts.chooseSpot(me) || acts.chooseSpot(me, { only: 'floor' })
-      || { ledge: FLOOR, dx: rand(20 * env.S, Math.max(21 * env.S, castleLeft() - 20 * env.S)), rest: 'stand' };
-    me.anchor = null; me.atHome = false;
-    arrive(me, spot); snapShape(me);
-    fx.puff(me.x, me.y - 4 * me.s, me.s);
-    run(me, async g => { await acts.happyHop(g, 1); });
-  }
-  if (save) store.set(KEY_ON, JSON.stringify(cast.map(c => c.design.id)));
-}
-
-function startingIds() {
+// Until 2026-10 this site ran its own copy of the engine, which kept each companion's looks under companion.<id>.
+// The embed reads the same settings from companions.companion.<id> (who is on the page, companions.onScreen, kept its
+// key), so they move over once, before the embed starts.
+function carryOver() {
   try {
-    const saved = JSON.parse(store.get(KEY_ON, 'null'));
-    if (Array.isArray(saved)) return saved.filter(id => typeof id === 'string');
-  } catch { /* start with the defaults */ }
-  const d = config.defaults || {};
-  return (phone() ? d.phone : d.desktop) || ['clawd'];
+    for (const key of Object.keys(localStorage)) {
+      const id = /^companion\.(.+)$/.exec(key)?.[1];
+      if (!id) continue;
+      if (localStorage.getItem(`companions.companion.${id}`) === null) localStorage.setItem(`companions.companion.${id}`, localStorage.getItem(key));
+      localStorage.removeItem(key);
+    }
+  } catch { /* site data blocked: nothing was kept */ }
 }
 
-// ---------- the frame loop (as preview/main.js) ----------
-function follow(me, now) {
-  if (!me.anchor || me.moving || me.held || me.atHome) return;
-  const pt = spotPoint(me, me.anchor);
-  if (!pt) {
-    me.anchor = null;
-    run(me, g => fallDown(g), { snap: false });
-    return;
-  }
-  me.x = pt.x; me.y = pt.y;
-  if (now > (me.nextVis || 0)) {
-    me.nextVis = now + 700;
-    const off = pt.y < 6 * me.s || pt.y > env.H + 2 || pt.x < 0 || pt.x > env.W;
-    if (off || !visibleOn(baseOf(me.anchor), pt.x, pt.y, me.s)) me.lost = true;
-  }
-}
-
-function gaze(me) {
-  me.gaze = null;
-  if (!pointer || !me.idle || me.sleeping || me.moving) return;
-  const dx = pointer.x - me.x, dy = pointer.y - (me.y - 3 * me.s);
-  if (Math.hypot(dx, dy) > 200) return;
-  me.gaze = Math.abs(dx) > Math.abs(dy) * 0.8 ? (dx < 0 ? 'left' : 'right') : dy < 0 ? 'up' : 'down';
-}
-
-function blink(me, now) {
-  if (now > (me.nextBlink || 0) + 130) { me.pose.blink = false; me.nextBlink = now + rand(2200, 5200); }
-  else if (now > (me.nextBlink || 0)) me.pose.blink = true;
-}
-
-function loop(now) {
-  for (const me of cast) {
-    blink(me, now); morph(me, now); follow(me, now); gaze(me);
-    acts.updateBabies(me, now);
-    skinEffects(me, now);
-  }
-  director(now);
-  env.ctx.clearRect(0, 0, env.W, env.H);
-  drawStage(now);
-  for (const me of cast) for (const b of me.babies) drawCompanion(b.c, now);
-  for (const me of cast) drawCompanion(me, now);
-  drawStageFront(now);
-  fx.draw(now);
-  bubble.tick(now);
-  frame(loop);
-}
-
-const playIn = (lo, hi) => performance.now() + rand(lo, hi) * gatherings().wait;
-let nextPlay = null;
-function director(now) {
-  const P = together.partyOn();
-  if (P) { for (const me of cast) if (me !== P.host && free(me) && can(me, 'party.join')) joinParty(me, P); return; }
-  nextPlay ??= playIn(40000, 70000);
-  if (now < nextPlay) return;
-  nextPlay = playIn(70000, 120000);
-  const games = [], hosts = cast.filter(me => free(me) && can(me, 'party.host'));
-  if (hosts.length) games.push({ w: 0.8, go: () => startParty(pick(hosts)) });
-  const pairs = cast.flatMap(a => (free(a) && !a.babies.length && can(a, 'basketball.throw')
-    ? cast.filter(b => b !== a && free(b) && !b.babies.length && can(b, 'basketball.catch')).map(b => [a, b]) : []));
-  if (pairs.length) games.push({ w: 1, go: () => { const [a, b] = pick(pairs); runPair(a, b, together.basketball); } });
-  weighted(games, game => game.w)?.go();
-}
-
-// ---------- input: they notice you, and can be picked up ----------
-const toScene = e => { const b = scene.getBoundingClientRect(); return { x: e.clientX - b.left, y: e.clientY - b.top }; };
-
-function hit(pt) {
-  for (const me of [...cast].reverse()) {
-    const b = me.bbox, pad = 4;
-    if (b && me.alpha >= 0.5 && !me.atHome && pt.x >= b.l - pad && pt.x <= b.r + pad && pt.y >= b.t - pad && pt.y <= b.b + pad) return me;
-  }
-  return null;
-}
-
-function listen() {
-  document.addEventListener('pointermove', e => {
-    const now = performance.now(), p = toScene(e);
-    if (pointer) moves.push({ t: now, d: Math.hypot(p.x - pointer.x, p.y - pointer.y) });
-    while (moves.length && now - moves[0].t > 2000) moves.shift();
-    lastInput = now; pointer = p;
-  }, { passive: true });
-  document.addEventListener('keydown', () => { lastInput = lastKey = performance.now(); }, { capture: true });
-  for (const type of ['wheel', 'pointerdown', 'scroll']) document.addEventListener(type, () => { lastInput = performance.now(); }, { passive: true, capture: true });
-
-  // A companion standing on a button is picked up, not the button: the click after it is swallowed.
-  let swallow = 0;
-  document.addEventListener('click', e => {
-    if (performance.now() < swallow) { e.preventDefault(); e.stopPropagation(); swallow = 0; }
-  }, true);
-  // On a touch screen, touching a companion holds it instead of scrolling the page.
-  scene.addEventListener('touchstart', e => {
-    const t = e.touches[0];
-    if (t && !e.target.closest?.('.companion-say') && hit(toScene(t))) e.preventDefault();
-  }, { passive: false });
-
-  scene.addEventListener('pointerdown', e => {
-    if (e.button > 0 || e.target.closest?.('.companion-say')) return;
-    const pt = toScene(e), me = hit(pt);
-    if (!me) return;
-    e.preventDefault(); e.stopPropagation();
-    swallow = performance.now() + 1500;
-    const ptr = { x: pt.x, y: pt.y, down: true };
-    let dragging = false;
-    scene.setPointerCapture(e.pointerId);
-    const move = ev => {
-      const q = toScene(ev);
-      ptr.x = q.x; ptr.y = q.y;
-      if (!dragging && Math.hypot(q.x - pt.x, q.y - pt.y) > 5) { dragging = true; run(me, g => acts.dragged(g, ptr), { snap: false }); }
-    };
-    const up = () => {
-      ptr.down = false;
-      scene.removeEventListener('pointermove', move); scene.removeEventListener('pointerup', up); scene.removeEventListener('pointercancel', up);
-      if (dragging) return;
-      if (me.sleeping) me.wakeRequest = true;
-      else run(me, g => acts.clicked(g));
-    };
-    scene.addEventListener('pointermove', move); scene.addEventListener('pointerup', up); scene.addEventListener('pointercancel', up);
-  }, { capture: true });
-
-  for (const opener of document.querySelectorAll('[data-companions-menu]')) opener.addEventListener('click', () => openMenu());
-}
-
-// ---------- the canvas follows the page's size ----------
-function resize() {
-  const S = phone() ? 3 : 4;
-  if (S !== env.S) {
-    env.S = S;
-    for (const me of cast) me.s = me.anchor ? spotScale(me, me.anchor) : scaleOf(me);
-  }
-  const r = scene.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
-  env.W = r.width; env.H = r.height;
-  canvas.width = Math.round(env.W * dpr); canvas.height = Math.round(env.H * dpr);
-  canvas.style.width = env.W + 'px'; canvas.style.height = env.H + 'px';
-  env.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  env.ctx.imageSmoothingEnabled = false;
-}
+let running = false;     // between the embed's start and destroy (reset() does both)
+let failed = false;      // the embed is missing or could not start
+let moving = false;      // the visitor's Motion choice is Moving (reduced motion starts Still)
 
 // ---------- "Customize us!" ----------
-// A speech bubble over one companion's head, as an HTML button (clickable, focusable, read out) drawn in the
-// engine's own pixel font and bubble colors. It shows a few seconds after the page opens, then now and then.
+// A speech bubble over one companion's head, as an HTML button (clickable, focusable, read out), drawn by the embed in
+// the companions' pixel font. It shows a few seconds after the page opens, then now and then, only while they move.
+// It never covers a line of text, a tile or the header's and footer's controls: it hides when it would.
 const bubble = (() => {
-  const INK = '#1E1E24', EDGE = '#3A3A44', FILL = '#FFFFE1', PAD = 3, TAIL = 3;
-  let button = null, me = null, until = 0, next = performance.now() + 2600, w = 0, h = 0;
+  const BOXES = '.tile, .brand, .looks, .lang, .foot a, .foot button';   // covered anywhere in their box
+  const HOP = 16;              // its pose changes a little while it waves: a new bubble needs this much more room above
+  let button = null, size = null, regions = [], speaker = null, until = 0, next = null;
 
   function make() {
-    button = Object.assign(document.createElement('button'), { type: 'button', className: 'companion-say', hidden: true });
+    button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'companion-say';
+    button.hidden = button.inert = true;
     button.setAttribute('aria-label', T.say || 'Customize us!');
-    const c = document.createElement('canvas');
-    button.append(c);
+    const canvas = document.createElement('canvas');
+    canvas.setAttribute('aria-hidden', 'true');
+    button.append(canvas);
     button.addEventListener('click', () => openMenu());
-    scene.append(button);
-    draw(c);
+    document.body.append(button);
+    size = C.drawBubble(canvas, T.say || 'Customize us!');
   }
 
-  function draw(c) {
-    const text = (T.say || 'Customize us!').toUpperCase(), u = 2, dpr = window.devicePixelRatio || 1;
-    const bw = textWidth(text) + 2 * PAD, bh = 5 + 2 * PAD;
-    w = bw * u; h = (bh + TAIL) * u;
-    c.width = w * dpr; c.height = h * dpr; c.style.width = w + 'px'; c.style.height = h + 'px';
-    const ctx = c.getContext('2d');
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.imageSmoothingEnabled = false;
-    const rect = (x, y, cw, ch, color) => { ctx.fillStyle = color; ctx.fillRect(x * u, y * u, cw * u, ch * u); };
-    rect(1, 0, bw - 2, 1, EDGE); rect(1, bh - 1, bw - 2, 1, EDGE); rect(0, 1, 1, bh - 2, EDGE); rect(bw - 1, 1, 1, bh - 2, EDGE);
-    rect(1, 1, bw - 2, bh - 2, FILL);
-    const mid = Math.floor(bw / 2) - 1;             // the tail, pointing down at the speaker
-    for (let k = 0; k < TAIL; k++) { const n = 4 - k; rect(mid, bh - 1 + k, n, 1, FILL); rect(mid, bh - 1 + k, 1, 1, EDGE); rect(mid + n - 1, bh - 1 + k, 1, 1, EDGE); }
-    rect(mid, bh - 1 + TAIL, 1, 1, EDGE);
-    drawText(ctx, text, PAD * u, PAD * u, u, INK);
+  // Over a companion's head (its region has 4 px around it), the tail pointing down at it, inside the window. A new
+  // speaker needs room above it (null without); one already speaking keeps it at the top edge while it hops.
+  function placeFor(r, { fits = true } = {}) {
+    const width = document.documentElement.clientWidth;
+    const l = Math.max(4, Math.min(r.x + r.width / 2 - size.width / 2, width - size.width - 4)), t = r.y + 4 - size.height;
+    if (fits && t < 4) return null;
+    return { l, t: Math.max(4, t), r: l + size.width, b: Math.max(4, t) + size.height };
   }
+  // The page's text line by line (a heading's or paragraph's box is often much wider than its words), and the boxes.
+  function obstacles() {
+    const rects = [...document.querySelectorAll(BOXES)].map(el => el.getBoundingClientRect());
+    const main = document.querySelector('main'), range = document.createRange();
+    if (!main) return rects;
+    const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, { acceptNode: n => (n.data.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      range.selectNodeContents(node);
+      rects.push(...range.getClientRects());
+    }
+    return rects;
+  }
+  const covers = (place, above = 0) => obstacles().some(q =>
+    q.width > 0 && place.l < q.right && place.r > q.left && place.t - above < q.bottom && place.b > q.top);
+  const placeOf = (id, options) => { const r = regions.find(x => x.id === id); return r ? placeFor(r, options) : null; };
+  function put(place) { button.style.left = place.l + 'px'; button.style.top = place.t + 'px'; }
 
-  // Where the bubble would be over this companion's head, in the scene's coordinates.
-  function placeFor(c) {
-    const b = c.bbox;
-    if (!b) return null;
-    const l = clamp((b.l + b.r) / 2 - w / 2, 4, Math.max(4, env.W - w - 4)), t = Math.max(4, b.t - h - 4);
-    return { l, t, r: l + w, b: t + h };
-  }
-  // The bubble covers nothing of the page: no heading, text or tile.
-  function clear(place) {
-    const s = scene.getBoundingClientRect();
-    return ![...scene.querySelectorAll('h1, h2, p, .tile')].some(el => {
-      const q = el.getBoundingClientRect(), l = q.left - s.left, t = q.top - s.top;
-      return place.l < l + q.width && place.r > l && place.t < t + q.height && place.b > t;
-    });
-  }
-  // Someone free, not sitting on a line of text, whose bubble would cover nothing.
-  function speaker() {
-    const ok = c => c && free(c) && c.anchor?.ledge?.kind !== 'text' && placeFor(c) && clear(placeFor(c));
-    return (config.defaults?.speakers || []).map(id => all[id]).find(ok) || cast.find(ok) || null;
-  }
-
+  // The site's speakers first, then anyone on the page: the first free one whose bubble covers nothing waves.
   function show(now) {
-    me = speaker();
-    if (!me) { next = now + 4000; return; }
-    until = now + 8000;
-    button.hidden = false;
-    run(me, g => acts.wave(g));
-    next = now + (store.get(KEY_SEEN) ? rand(240000, 360000) : rand(70000, 110000));
+    for (const id of new Set([...(defaults.speakers || []), ...regions.map(r => r.id)])) {
+      const place = placeOf(id);
+      if (!place || place.t - HOP < 4 || covers(place, HOP) || !C.wave(id)) continue;
+      speaker = id; until = now + 8000;
+      put(place);
+      button.hidden = button.inert = false;
+      next = now + (store.get(KEY_SEEN) ? rand(240000, 360000) : rand(70000, 110000));
+      return;
+    }
+    next = now + 4000;
   }
 
-  function hide() { until = 0; me = null; if (button) button.hidden = true; }
+  function hide() {
+    speaker = null;
+    if (button) button.hidden = button.inert = true;
+  }
 
   function tick(now) {
-    if (!button) return;
-    if (until && (now > until || !cast.includes(me) || me.sleeping || me.atHome)) hide();
-    if (!until && now > next && !document.querySelector('dialog.cm[open]')) show(now);
-    if (!until || !me) return;
-    const place = placeFor(me);
-    if (!place) return;
-    button.style.left = place.l + 'px';
-    button.style.top = place.t + 'px';
+    next ??= now + 2600;
+    if (speaker) {
+      const place = placeOf(speaker, { fits: false });
+      if (now > until || !moving || !place || covers(place)) hide(); else put(place);
+    } else if (moving && now > next && !menu?.dialog.open) show(now);
   }
 
-  return { make, hide, tick };
+  return {
+    start() { if (!button) make(); next = null; hide(); },
+    hide, tick,
+    setRegions(list) { regions = list; },
+  };
 })();
 
 // ---------- the menu ----------
 const label = {
-  skin: (design, key) => T.skins?.[key] || design.skins?.[key]?.label || SKINS[key]?.label || key,
-  outfit: (slot, key) => T.outfits?.[key] || OUTFITS[slot]?.[key] || key,
-  size: key => T.sizes?.[key] || SIZES[key] || key,
-  group: g => T.groups?.[g] || g,
+  skin: skin => T.skins?.[skin.key] || skin.label,
+  outfit: outfit => T.outfits?.[outfit.key] || outfit.label,
+  size: size => T.sizes?.[size.step] || size.label,
+  group: group => T.groups?.[group] || group,
 };
 
 function el(tag, props = {}, ...children) {
@@ -424,41 +132,23 @@ function el(tag, props = {}, ...children) {
   return node;
 }
 
-// A companion drawn still into a canvas, as big as fits, standing on its bottom edge (preview/panel.js).
-function drawPortrait(c, me) {
-  const d = me.design, art = d.body.art;
-  const W = (art?.[0].length ?? 12) + 6, H = (art?.length ?? 5) + (d.body.legs?.length ?? 1) + 6;
-  const s = Math.max(1, Math.floor(Math.min(c.width / W, c.height / H)));
-  const p = makeCompanion(d, s);
-  Object.assign(p, { look: me.look, outfit: { ...me.outfit }, x: c.width / 2, y: c.height - 2 * s });
-  const ctx = c.getContext('2d'), keep = env.ctx;
-  ctx.clearRect(0, 0, c.width, c.height);
-  ctx.imageSmoothingEnabled = false;
-  env.ctx = ctx;
-  try { drawCompanion(p, performance.now()); } finally { env.ctx = keep; }
+// A button that keeps keyboard focus when the menu is drawn again: `key` names it across renders.
+function button(key, className, onClick, ...children) {
+  const b = el('button', { type: 'button', className }, ...children);
+  b.dataset.key = key;
+  b.addEventListener('click', onClick);
+  return b;
 }
-const portrait = (me, size) => { const c = el('canvas', { width: size, height: size }); drawPortrait(c, me); return c; };
+const pressed = (node, on) => { node.setAttribute('aria-pressed', String(on)); return node; };
 
-// A round swatch for a skin: its color, a pie of the companion's own colors, or a picture for a moving skin (panel.js).
-function paintSwatch(node, look) {
-  if (look.fx) { node.classList.add(look.fx); return node; }
-  if (look.skinColor) { node.style.background = look.skinColor; return node; }
-  const top = look.shares.slice(0, 4), total = top.reduce((sum, [, share]) => sum + share, 0);
-  let at = 0;
-  node.style.background = top.length === 1 ? top[0][0]
-    : `conic-gradient(${top.map(([color, share]) => `${color} ${at}deg ${(at += (share / total) * 360)}deg`).join(', ')})`;
-  return node;
+// Drawn at twice its CSS size (site.css), still, in its current looks.
+function portrait(id, size) {
+  const c = el('canvas', { width: size, height: size });
+  C.drawPortrait(c, id);
+  return c;
 }
 
-let menu = null, chosen = null, everyoneLoaded = null;
-
-function change(me, edit) {
-  const s = settingsOf(me);
-  edit(s);
-  applySettings(me, s);
-  store.set(keyOf(me.design.id), JSON.stringify(settingsOf(me)));
-  renderMenu();
-}
+let menu = null, chosen = null;
 
 function buildMenu() {
   const dialog = el('dialog', { className: 'cm' });
@@ -469,23 +159,23 @@ function buildMenu() {
   const reset = el('button', { type: 'button', className: 'btn', textContent: T.reset || 'Start over' });
   reset.addEventListener('click', startOver);
   const remove = el('button', { type: 'button', className: 'btn cm-remove', textContent: T.remove || 'Remove' });
-  remove.addEventListener('click', () => { if (chosen) { setOnScreen(chosen, false); chosen = cast[0] || null; renderMenu(); } });
+  remove.addEventListener('click', () => { if (running && chosen) C.setOnScreen(chosen, false); });
   const repo = config.repo ? el('a', { href: config.repo, rel: 'noopener', target: '_blank', textContent: T.repo || 'GitHub' }) : null;
   const parts = {
     here: el('div', { className: 'cm-here' }),
     empty: el('p', { className: 'cm-empty', textContent: T.none || '' }),
+    motion: el('div', { className: 'cm-row' }),
     looksTitle: el('h3', { className: 'eyebrow' }),
     looks: el('div', {}),
     looksSection: null,
-    groups: el('div', {}, el('p', { className: 'cm-empty', textContent: T.loading || '' })),
-    remove,
+    groups: el('div', {}),
   };
   parts.looksSection = el('section', { className: 'cm-section' }, parts.looksTitle, parts.looks, remove);
   dialog.append(
     el('div', { className: 'cm-head' }, el('h2', { id: 'cm-title', textContent: T.title || 'Companions' }), close),
     el('div', { className: 'cm-body' },
       el('p', { className: 'cm-intro', textContent: T.intro || '' }),
-      el('section', { className: 'cm-section' }, el('h3', { className: 'eyebrow', textContent: T.here || '' }), parts.here, parts.empty),
+      el('section', { className: 'cm-section' }, el('h3', { className: 'eyebrow', textContent: T.here || '' }), parts.here, parts.empty, parts.motion),
       parts.looksSection,
       el('section', { className: 'cm-section' }, el('h3', { className: 'eyebrow', textContent: T.add || '' }), parts.groups),
       el('div', { className: 'cm-foot' }, el('p', {}, T.footer || '', repo ? ' ' : '', repo), reset)),
@@ -497,71 +187,63 @@ function buildMenu() {
 }
 
 function renderMenu() {
-  if (!menu) return;
+  if (!menu?.dialog.open) return;
   const { parts } = menu;
-  if (chosen && !cast.includes(chosen)) chosen = null;
-  chosen ??= cast[0] || null;
+  const focused = menu.dialog.contains(document.activeElement) ? document.activeElement.dataset?.key : null;
 
-  parts.here.replaceChildren(...cast.map(me => {
-    const b = el('button', { type: 'button', className: 'cm-chip' }, portrait(me, 52), me.design.name);
-    b.setAttribute('aria-pressed', String(me === chosen));
-    b.addEventListener('click', () => { chosen = me; renderMenu(); });
-    return b;
-  }));
-  parts.empty.hidden = cast.length > 0;
+  if (!running) {             // still starting, or it could not
+    parts.here.replaceChildren();
+    parts.empty.hidden = parts.motion.hidden = parts.looksSection.hidden = true;
+    parts.groups.replaceChildren(el('p', { className: 'cm-empty', textContent: (failed ? T.failed : T.loading) || '' }));
+    return;
+  }
+  const designs = C.designs(), nameOf = id => designs.find(d => d.id === id)?.name || id;
+  const { companions: here, motion } = C.getOptions();
+  if (!here.includes(chosen)) chosen = here[0] ?? null;
+
+  parts.here.replaceChildren(...here.map(id => pressed(
+    button(`here:${id}`, 'cm-chip', () => { chosen = id; renderMenu(); }, portrait(id, 52), nameOf(id)), id === chosen)));
+  parts.empty.hidden = here.length > 0;
+
+  const motions = MOTIONS.map(m => pressed(button(`motion:${m}`, 'cm-opt', () => C.setOptions({ motion: m }), T.motion?.[m] || m), m === motion));
+  parts.motion.hidden = false;
+  parts.motion.replaceChildren(el('span', { textContent: T.motion?.label || 'Motion' }), el('div', { className: 'cm-opts' }, ...motions),
+    el('p', { className: 'cm-hint', textContent: T.motion?.hints?.[motion] || '' }));
+
   parts.looksSection.hidden = !chosen;
-
   if (chosen) {
-    const me = chosen, d = me.design;
-    parts.looksTitle.textContent = `${T.looks || 'Looks'} · ${d.name}`;
-    const option = (text, on, pickIt) => {
-      const b = el('button', { type: 'button', className: 'cm-opt', textContent: text });
-      b.setAttribute('aria-pressed', String(on));
-      b.addEventListener('click', pickIt);
+    const id = chosen, current = C.getCompanion(id);
+    parts.looksTitle.textContent = `${T.looks || 'Looks'} · ${nameOf(id)}`;
+    const row = (title, ...options) => el('div', { className: 'cm-row' }, el('span', { textContent: title }), el('div', { className: 'cm-opts' }, ...options));
+    const option = (key, text, on, pick) => pressed(button(key, 'cm-opt', pick, text), on);
+    const rows = [row(T.skin || 'Skin', ...C.skins(id).map(skin => {
+      const b = pressed(button(`skin:${skin.key}`, 'cm-swatch', () => C.setCompanion(id, { skin: skin.key })), current.skin === skin.key);
+      b.title = label.skin(skin);
+      b.setAttribute('aria-label', label.skin(skin));
+      b.style.background = skin.swatch;
       return b;
-    };
-    const rows = [];
-    const swatches = skinsFor(d).map(key => {
-      const b = paintSwatch(el('button', { type: 'button', className: 'cm-swatch', title: label.skin(d, key) }), lookFor(d, key));
-      b.setAttribute('aria-label', label.skin(d, key));
-      b.setAttribute('aria-pressed', String(me.look.key === key));
-      b.addEventListener('click', () => change(me, s => { s.skin = key; }));
-      return b;
-    });
-    rows.push(el('div', { className: 'cm-row' }, el('span', { textContent: T.skin || 'Skin' }), el('div', { className: 'cm-opts' }, ...swatches)));
-    const current = settingsOf(me);
-    for (const slot of ['head', 'body']) {
-      if (!(d.outfits || []).includes(slot)) continue;
-      const opts = Object.keys(OUTFITS[slot]).map(key => option(label.outfit(slot, key), current.outfit[slot] === key,
-        () => change(me, s => { s.outfit = { ...s.outfit, [slot]: key }; })));
-      rows.push(el('div', { className: 'cm-row' }, el('span', { textContent: T[slot] || slot }), el('div', { className: 'cm-opts' }, ...opts)));
+    }))];
+    for (const [slot, outfits] of Object.entries(C.outfits(id))) {
+      rows.push(row(T[slot] || slot, ...outfits.map(o => option(`${slot}:${o.key}`, label.outfit(o), current.outfit[slot] === o.key,
+        () => C.setCompanion(id, { outfit: { ...current.outfit, [slot]: o.key } })))));
     }
-    const sizes = Object.keys(SIZES).map(Number).sort((a, b) => a - b).map(key => option(label.size(key), (me.size || 0) === key,
-      () => change(me, s => { s.size = key; })));
-    rows.push(el('div', { className: 'cm-row' }, el('span', { textContent: T.size || 'Size' }), el('div', { className: 'cm-opts' }, ...sizes)));
+    rows.push(row(T.size || 'Size', ...C.sizes().map(s => option(`size:${s.step}`, label.size(s), (current.size || 0) === s.step,
+      () => C.setCompanion(id, { size: s.step })))));
     parts.looks.replaceChildren(...rows);
   }
 
-  if (everyoneLoaded === true) {
-    const companions = index.map(id => all[id]).filter(Boolean);
-    const groups = [...new Set(companions.map(me => me.design.group || 'Others'))]
-      .sort((a, b) => (GROUP_ORDER.indexOf(a) + 1 || 99) - (GROUP_ORDER.indexOf(b) + 1 || 99));
-    parts.groups.replaceChildren(...groups.map(group => el('div', { className: 'cm-group' },
-      el('h4', { textContent: label.group(group) }),
-      el('div', { className: 'cm-grid' }, ...companions.filter(me => (me.design.group || 'Others') === group).map(me => {
-        const on = cast.includes(me);
-        const tile = el('button', { type: 'button', className: 'cm-tile', title: me.design.about || '' }, portrait(me, 104), me.design.name);
-        tile.setAttribute('aria-pressed', String(on));
-        tile.addEventListener('click', () => {
-          setOnScreen(me, !cast.includes(me));
-          if (cast.includes(me)) chosen = me;
-          renderMenu();
-        });
-        return tile;
-      })))));
-  } else if (everyoneLoaded === false) {
-    parts.groups.replaceChildren(el('p', { className: 'cm-empty', textContent: T.failed || '' }));
-  }
+  parts.groups.replaceChildren(...C.groups().map(group => el('div', { className: 'cm-group' },
+    el('h4', { textContent: label.group(group) }),
+    el('div', { className: 'cm-grid' }, ...designs.filter(d => d.group === group).map(d => {
+      const tile = pressed(button(`add:${d.id}`, 'cm-tile', () => {
+        if (!d.onScreen) chosen = d.id;
+        C.setOnScreen(d.id, !d.onScreen);
+      }, portrait(d.id, 104), d.name), d.onScreen);
+      tile.title = d.about;
+      return tile;
+    })))));
+
+  if (focused) menu.dialog.querySelector(`[data-key="${CSS.escape(focused)}"]`)?.focus();
 }
 
 function openMenu() {
@@ -570,53 +252,44 @@ function openMenu() {
   menu ??= buildMenu();
   if (!menu.dialog.open) menu.dialog.showModal();
   renderMenu();
-  if (everyoneLoaded === null) {
-    everyoneLoaded = 'loading';
-    ensure(index).then(() => { everyoneLoaded = true; }, e => { console.error(e); everyoneLoaded = false; }).then(renderMenu);
-  }
 }
 
-function startOver() {
-  store.clear();
-  for (const me of [...cast]) setOnScreen(me, false, { save: false });
-  for (const me of Object.values(all)) applySettings(me, {});
-  const d = config.defaults || {};
-  ensure((phone() ? d.phone : d.desktop) || ['clawd']).then(list => {
-    for (const me of list) setOnScreen(me, true, { save: false });
-    chosen = null;
-    renderMenu();
-  });
+// Forgets every choice (the embed's and the menu's) and starts again with the site's defaults. The button stays
+// enabled (disabling it would drop the keyboard's focus); a second press while it runs does nothing.
+let resetting = false;
+async function startOver() {
+  if (!running || resetting) return;
+  resetting = true;
+  chosen = null;
+  try { await C.reset(); } catch (e) { failed = true; console.error('companions:', e); }
+  resetting = false;
+  renderMenu();
 }
 
 // ---------- start ----------
-// Surfaces higher up the page are stacked above the ones below (inline z-index, which the engine reads as window
-// order): world.js counts a spot as hidden when a window stacked above overlaps it, so a companion never stands where
-// it would cover what is above it (the tiles stacked close together on a phone). The canvas stays above them all.
-function stackSurfaces() {
-  const surfaces = [...scene.querySelectorAll('.window')];
-  surfaces.forEach((el, i) => { el.style.zIndex = String(surfaces.length - i); });
+for (const opener of document.querySelectorAll('[data-companions-menu]')) opener.addEventListener('click', () => openMenu());
+
+if (!C) {
+  failed = true;
+  console.error('companions: the companions script did not load.');
+} else {
+  C.on('start', () => {
+    running = true; failed = false;
+    moving = C.getOptions().motion === 'moving';
+    bubble.start();
+    renderMenu();
+  });
+  C.on('destroy', () => { running = false; bubble.hide(); });
+  C.on('change', change => {
+    if (change.type === 'options') moving = C.getOptions().motion === 'moving';
+    renderMenu();
+  });
+  C.on('hitRegions', list => bubble.setRegions(list));
+  C.on('frame', now => bubble.tick(now));
+  carryOver();
+  C.start({ companions: defaults.desktop, phone: { companions: defaults.phone } }).catch(e => {
+    failed = true;
+    console.error('companions:', e);
+    renderMenu();
+  });
 }
-
-async function start() {
-  canvas = Object.assign(document.createElement('canvas'), { className: 'companions-stage' });
-  canvas.setAttribute('aria-hidden', 'true');
-  scene.append(canvas);
-  env.ctx = canvas.getContext('2d');
-  stackSurfaces();
-  initWorld(scene);
-  resize();
-  new ResizeObserver(resize).observe(scene);
-  addEventListener('resize', resize);
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { pace.activity = 'background'; pace.gatherings = 'never'; }
-
-  const res = await fetch('/companions/companions/index.json');
-  if (!res.ok) throw new Error(`index.json: ${res.status}`);
-  index = await res.json();
-  const first = await ensure(startingIds());
-  listen();
-  bubble.make();
-  frame(loop);
-  first.forEach((me, i) => setTimeout(() => setOnScreen(me, true, { save: false }), 300 + i * 450));
-}
-
-if (scene) start().catch(e => console.error('companions:', e));

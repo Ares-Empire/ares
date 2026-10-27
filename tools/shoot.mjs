@@ -1,5 +1,5 @@
 // Screenshots of the site, desktop and phone, in each look (light, dark, red): node tools/shoot.mjs <outdir> [base] [pages...]
-// base defaults to the local build (python3 -m http.server 8790 --directory dist); for the live site pass
+// base defaults to the local build (python3 tools/serve.py, which sends the server's CSP); for the live site pass
 // https://patrikbreeck.com and set SITE_AUTH=user:password while it is behind the password.
 import { chromium } from 'playwright';
 

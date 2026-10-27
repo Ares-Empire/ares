@@ -154,7 +154,7 @@ p { margin: 0; }
 .icon { width: 18px; height: 18px; flex: none; }
 
 /* ---------- home: name and intro, the three links, what's being built ---------- */
-.home { flex: 1; display: flex; padding: clamp(4px, 2vh, 20px) var(--gutter) 96px; }   /* 96px: the companions' floor */
+.home { flex: 1; display: flex; padding: clamp(4px, 2vh, 20px) var(--gutter) 96px; }   /* 96px: a clear strip at the window's bottom on the first screen */
 .home-inner {
   flex: 1; width: 100%; max-width: 1120px; margin: 0 auto;
   display: grid; grid-template-rows: 1fr auto; gap: clamp(28px, 6vh, 64px);
@@ -243,10 +243,10 @@ p { margin: 0; }
 .prose a { word-break: break-word; }
 
 /* ---------- the companions ---------- */
-[data-companions] { position: relative; }
-.companions-stage { position: absolute; left: 0; top: 0; z-index: 50; pointer-events: none; image-rendering: pixelated; }
+/* The companions themselves are the embed's own layer over the page (vendor/companions/web). The "Customize us!"
+   bubble is the site's: fixed, placed by static/js/companions.js over a companion's head, above the page. */
 .companion-say {
-  position: absolute; z-index: 51; padding: 0; border: 0; background: none; cursor: pointer; line-height: 0;
+  position: fixed; left: 0; top: 0; z-index: 2; padding: 0; border: 0; background: none; cursor: pointer; line-height: 0;
   filter: drop-shadow(0 6px 10px rgba(0,0,0,.18)); transition: opacity .18s, transform .18s; transform-origin: 50% 100%;
 }
 .companion-say[hidden] { display: block; opacity: 0; transform: scale(.85); pointer-events: none; }
@@ -288,15 +288,7 @@ dialog.cm::backdrop { background: rgba(5,5,7,.12); }
   box-shadow: inset 0 0 0 1px rgba(127,127,127,.35); background-clip: padding-box;
 }
 .cm-swatch[aria-pressed="true"] { border-color: var(--focus); }
-.cm-swatch.rainbow { background: conic-gradient(#ff5a5a, #ffb03b, #f7e24a, #5ad66a, #4ab3f7, #8a6af7, #f25ad0, #ff5a5a); }
-.cm-swatch.sparkle { background: radial-gradient(circle at 30% 32%, #fff 0 2px, transparent 3px), radial-gradient(circle at 68% 62%, #fff 0 1.5px, transparent 2.5px), radial-gradient(circle at 60% 24%, #fff 0 1px, transparent 2px), #c7b6f2; }
-.cm-swatch.gold { background: linear-gradient(135deg, #a97d18, #f7e08a 45%, #d9a92e 62%, #a97d18); }
-.cm-swatch.enchanted { background: repeating-linear-gradient(125deg, #6B42B0 0 3px, #C58BFF 3px 6px, #8A5AD8 6px 9px); }
-.cm-swatch.diamond { background: linear-gradient(135deg, #1E9A9A, #A1FBE8 45%, #4AEDD9 62%, #1E9A9A); }
-.cm-swatch.lava { background: radial-gradient(circle at 34% 38%, #FFE680 0 2px, transparent 3px), linear-gradient(155deg, #3A160C 18%, #E04A14 42%, #FFA024 52%, #E04A14 62%, #3A160C 85%); }
-.cm-swatch.galaxy { background: radial-gradient(circle at 30% 30%, #fff 0 1.5px, transparent 2.5px), radial-gradient(circle at 70% 64%, #CFD6FF 0 1px, transparent 2px), radial-gradient(circle at 58% 42%, #B65BD6, transparent 62%), #211A55; }
-.cm-swatch.aurora { background: linear-gradient(160deg, #2FD39A, #2FB8D3 40%, #6A5BE0 70%, #B05BD6); }
-.cm-swatch.matrix { background: linear-gradient(#0f6128, #d8ffe0) 28% 15% / 3px 45% no-repeat, linear-gradient(#0f6128, #6bff95) 52% 80% / 3px 50% no-repeat, linear-gradient(#0f6128, #d8ffe0) 74% 30% / 3px 35% no-repeat, #050805; }
+.cm-hint { margin-top: 8px; font-size: 13px; color: var(--ink-3); }
 .cm-remove { margin-top: 16px; }
 .cm-group { margin-top: 16px; }
 .cm-group h4 { margin: 0 0 8px; font-size: 13px; font-weight: 500; color: var(--ink-3); }

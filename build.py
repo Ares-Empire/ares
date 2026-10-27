@@ -5,8 +5,10 @@
 
 Everything a page says comes from content/: site.json (owner, links, settings), strings.<lang>.json
 (every interface text, the same keys in both languages), apps.json (the apps page) and legal/ (imprint
-and privacy policy, with {{placeholders}} filled from site.json). static/ is copied to /assets/, and the
-companions engine (vendor/companions, a git submodule pinned to one commit) to /companions/.
+and privacy policy, with {{placeholders}} filled from site.json). static/ is copied to /assets/. The
+companions come from vendor/companions (a git submodule pinned to one commit): its website embed is built
+into one file, /companions/companions.min.js, with Node and esbuild (`npm ci --prefix vendor/companions/web`
+once); Node is used for nothing else.
 
 The build refuses to finish when a text is missing in one language, a placeholder is left unfilled, or
 a page would load anything from another host (the privacy policy promises it never does).
@@ -19,6 +21,7 @@ import html
 import json
 import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -26,7 +29,8 @@ ROOT = Path(__file__).resolve().parent
 CONTENT = ROOT / "content"
 STATIC = ROOT / "static"
 DIST = ROOT / "dist"
-ENGINE = ROOT / "vendor" / "companions"
+COMPANIONS = ROOT / "vendor" / "companions"
+BUNDLE = "companions/companions.min.js"   # the companions' embed in dist/, with its source map next to it
 LANGS = ("en", "de")
 LOOKS = ("light", "dark", "red")   # the site's looks (static/js/theme.js, site.css); "red" is red and gold
 
@@ -125,11 +129,13 @@ ICONS = {
 }
 
 
+def versioned(url: str, path: Path) -> str:
+    """url?v=<hash of the file>, so a changed file is never served from an old cache."""
+    return f"{url}?v={hashlib.sha256(path.read_bytes()).hexdigest()[:10]}"
+
+
 def asset_url(name: str) -> str:
-    """/assets/<name>?v=<hash of the file>, so a changed file is never served from an old cache."""
-    path = STATIC / name
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()[:10]
-    return f"/assets/{name}?v={digest}"
+    return versioned(f"/assets/{name}", STATIC / name)
 
 
 def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, description: str, body: str,
@@ -150,9 +156,13 @@ def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, descript
     customize = ""
     scripts = f'<script type="module" src="{asset_url("js/flow.js")}"></script>\n'   # the line drifting behind every page
     if companions is not None:
+        # The embed (built by build_companions) waits for the site's script, which starts it with the defaults and adds
+        # the bubble and the menu; the footer's button opens that menu, so the embed's own round button stays away.
         customize = (f'<button type="button" class="linkish" data-companions-menu>{s("footer.customize")}</button>')
         config = json.dumps(companions, ensure_ascii=False).replace("</", "<\\/")
         scripts += (f'<script type="application/json" id="companions-config">{config}</script>\n'
+                    f'<script defer src="{versioned("/" + BUNDLE, DIST / BUNDLE)}" data-autostart="false" '
+                    f'data-settings-button="false"></script>\n'
                     f'<script type="module" src="{asset_url("js/companions.js")}"></script>\n')
     return f"""<!doctype html>
 <html lang="{lang}" data-page="{page}">
@@ -193,11 +203,13 @@ def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, descript
 
 # ---------- pages ----------
 
-def tile(id_: str, href: str, icon: str, title: str, sub: str, *, external: bool) -> str:
+def tile(href: str, icon: str, title: str, sub: str, *, external: bool) -> str:
+    # Companions stand on a tile's top edge, not inside it: inside they would sit on the button itself, take part of
+    # its click area and leave no room for the "Customize us!" bubble (data-companions-ignore: the embed skips it).
     rel = ' rel="me noopener"' if external else ""
-    return f"""      <a class="tile card window" id="{id_}" href="{esc(href)}"{rel}>
-        <span class="tile-icon" aria-hidden="true">{icon}</span>
-        <span class="tile-text"><span class="tile-title">{title}</span><span class="tile-sub">{sub}</span></span>
+    return f"""      <a class="tile card" href="{esc(href)}"{rel}>
+        <span class="tile-icon" aria-hidden="true" data-companions-ignore>{icon}</span>
+        <span class="tile-text" data-companions-ignore><span class="tile-title">{title}</span><span class="tile-sub">{sub}</span></span>
         {ICONS['external' if external else 'arrow']}
       </a>"""
 
@@ -209,26 +221,26 @@ def page_home(lang: str, s: Strings, site: dict, count: int, apps: list[dict]) -
     project = lambda key, status: (f'<li><p class="project-name"><strong>{s(f"projects.{key}Name")}</strong> '
                                    f'<span class="status {status}">{s(f"status.{status}")}</span></p>'
                                    f'<p>{s(f"projects.{key}", count=count)}</p></li>')
-    # Companions stand on every .window (each needs an id) and sit at the end of text in a [role=document]
-    # (companions engine, world.js): here only the short "Currently building" heading, where they cover nothing.
-    return f"""<main class="home" data-companions>
+    # The companions find their places on the page by themselves (the embed's page world: headings, lines of text,
+    # the tiles' top edges), never where they would cover text.
+    return f"""<main class="home">
   <div class="home-inner">
     <!-- The first screen: on a phone (where an NFC tap lands) it fills the screen as a business card, with the short
          line and the three buttons within thumb's reach; the projects follow below. -->
     <div class="first">
-      <section class="intro window" id="intro" aria-labelledby="name">
+      <section class="intro" aria-labelledby="name">
         <h1 id="name">Patrik Breeck</h1>
         <p class="lead lead-full">{s('home.lead')}</p>
         <p class="lead lead-short">{s('home.short')}</p>
       </section>
       <nav class="tiles" aria-label="{s('home.links')}">
-{tile("tile-apps", apps_url, f'<span class="stack">{stack}</span>', s('home.appsTitle'), s('home.appsSub'), external=False)}
-{tile("tile-github", links['github'], ICONS['github'], "GitHub", s('home.githubSub'), external=True)}
-{tile("tile-linkedin", links['linkedin'], ICONS['linkedin'], "LinkedIn", s('home.linkedinSub'), external=True)}
+{tile(apps_url, f'<span class="stack">{stack}</span>', s('home.appsTitle'), s('home.appsSub'), external=False)}
+{tile(links['github'], ICONS['github'], "GitHub", s('home.githubSub'), external=True)}
+{tile(links['linkedin'], ICONS['linkedin'], "LinkedIn", s('home.linkedinSub'), external=True)}
       </nav>
     </div>
     <section class="current" aria-labelledby="current-title">
-      <div role="document"><h2 class="eyebrow" id="current-title">{s('projects.title')}</h2></div>
+      <h2 class="eyebrow" id="current-title">{s('projects.title')}</h2>
       <ul class="projects">
         {project('aresos', 'building')}
         {project('apps', 'available')}
@@ -370,13 +382,23 @@ def write(path: str, text: str):
     out.write_text(text, encoding="utf-8")
 
 
-def copy_engine() -> int:
-    """The companions engine and designs from the pinned submodule; returns how many companions there are."""
-    index = ENGINE / "companions" / "index.json"
+def build_companions() -> int:
+    """The companions' website embed as one file, built from the pinned submodule by its own build
+    (vendor/companions/web/build.mjs) with every companion inside, so visitors can pick any of them in the menu.
+    Returns how many companions there are."""
+    index = COMPANIONS / "companions" / "index.json"
     if not index.exists():
         raise BuildError("vendor/companions is empty: run `git submodule update --init`")
-    for part in ("engine", "companions"):
-        shutil.copytree(ENGINE / part, DIST / "companions" / part)
+    node = shutil.which("node")
+    if not node:
+        raise BuildError("Node.js is missing: install Node 22 or newer, then run `npm ci --prefix vendor/companions/web`")
+    if not (COMPANIONS / "web" / "node_modules" / "esbuild").is_dir():
+        raise BuildError("esbuild is missing: run `npm ci --prefix vendor/companions/web`")
+    result = subprocess.run([node, str(COMPANIONS / "web" / "build.mjs"), "--out", str(DIST / BUNDLE)],
+                            cwd=ROOT, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise BuildError("the companions' file did not build (vendor/companions/web/build.mjs):\n  "
+                         + (result.stderr or result.stdout).strip())
     return len(load_json(index))
 
 
@@ -412,7 +434,7 @@ def build() -> list[str]:
     shutil.copytree(STATIC, DIST / "assets", ignore=shutil.ignore_patterns("favicon.svg", "apple-touch-icon.png"))
     for name in ("favicon.svg", "apple-touch-icon.png"):
         shutil.copy2(STATIC / name, DIST / name)
-    count = copy_engine()
+    count = build_companions()
     (DIST / "assets" / "css" / "apps.css").write_text(apps_css(apps), encoding="utf-8")
     apps_css_url = "/assets/css/apps.css?v=" + hashlib.sha256(apps_css(apps).encode()).hexdigest()[:10]
 

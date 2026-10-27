@@ -64,6 +64,17 @@
     "intro": "Choose who lives on this page and how they look. Your choice is saved only in this browser.",
     "here": "On this page",
     "none": "Nobody is here. Add someone below.",
+    "motion": {
+      "label": "Motion",
+      "moving": "Moving",
+      "still": "Still",
+      "hidden": "Hidden",
+      "hints": {
+        "moving": "They walk, nap and visit each other on their own.",
+        "still": "They stand at the bottom of the window for this visit and can still be picked up.",
+        "hidden": "Off the page for this visit, until you bring them back here."
+      }
+    },
     "looks": "Looks",
     "skin": "Skin",
     "head": "Hat",
@@ -81,6 +92,7 @@
       "Originals": "Originals",
       "Apps": "Apps",
       "Mascots": "Mascots",
+      "Mythology": "Mythology",
       "Minecraft": "Minecraft",
       "Others": "Others"
     },

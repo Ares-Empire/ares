@@ -64,6 +64,17 @@
     "intro": "Wähle, wer auf dieser Seite wohnt und wie sie aussehen. Deine Auswahl bleibt nur in diesem Browser.",
     "here": "Auf dieser Seite",
     "none": "Niemand ist da. Füge unten jemanden hinzu.",
+    "motion": {
+      "label": "Bewegung",
+      "moving": "In Bewegung",
+      "still": "Still",
+      "hidden": "Ausgeblendet",
+      "hints": {
+        "moving": "Sie laufen, schlafen und besuchen sich von selbst.",
+        "still": "Sie stehen für diesen Besuch unten am Fensterrand und lassen sich weiter hochheben.",
+        "hidden": "Für diesen Besuch nicht auf der Seite, bis du sie hier zurückholst."
+      }
+    },
     "looks": "Aussehen",
     "skin": "Skin",
     "head": "Hut",
@@ -81,6 +92,7 @@
       "Originals": "Originale",
       "Apps": "Apps",
       "Mascots": "Maskottchen",
+      "Mythology": "Mythologie",
       "Minecraft": "Minecraft",
       "Others": "Weitere"
     },

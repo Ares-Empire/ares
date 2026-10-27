@@ -30,7 +30,11 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
 - **Layout of the home page** (Patrik, 2026-10-26): name and intro top left, three large tiles across the middle
   (iPhone apps, GitHub, LinkedIn), the projects small at the bottom. No separate companions page: a companion says
   "Customize us!" and opens the menu.
-- **The companions engine is not edited here.** It is the pinned submodule `vendor/companions`; changes to it go to
-  the companions repo. Its rules for looks (no outlines around companions, etc.) are in `vendor/companions/CLAUDE.md`.
-- After a change: `python3 build.py`, serve `dist/`, run `node tools/shoot.mjs <scratch dir>` and look at the
-  pictures (phone and desktop, light and dark, German too), then `./deploy.sh`.
+- **The companions are not edited here.** They are the pinned submodule `vendor/companions`, whose website embed
+  `build.py` builds; changes to them go to the companions repo. The site uses only the embed's API (`window.Companions`,
+  `vendor/companions/web/README.md`): `static/js/companions.js` holds the bubble and the menu and never imports engine
+  files or copies engine code. What the menu needs and the API lacks goes into the embed. Their rules for looks (no
+  outlines around companions, etc.) are in `vendor/companions/CLAUDE.md`.
+- After a change: `python3 build.py`, serve `dist/` with `python3 tools/serve.py` (it sends the server's CSP), run
+  `node tools/shoot.mjs <scratch dir>` and look at the pictures (phone and desktop, light and dark, German too; no
+  console errors or CSP violations), then `./deploy.sh`.
