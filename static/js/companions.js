@@ -39,7 +39,9 @@ let moving = false;      // the visitor's Motion choice is Moving (reduced motio
 // ---------- "Customize us!" ----------
 // A speech bubble over one companion's head, as an HTML button (clickable, focusable, read out), drawn by the embed in
 // the companions' pixel font. It shows a few seconds after the page opens, then now and then, only while they move.
-// It never covers a line of text, a tile or the header's and footer's controls: it hides when it would.
+// It never covers a line of text, a tile or the header's and footer's controls: it hides when it would. Its speaker waves
+// and then stays where it is while the bubble shows (Companions.hold); the bubble goes when the hold ends (the visitor
+// picks the speaker up or changes Motion, its spot goes away).
 const bubble = (() => {
   const BOXES = '.tile, .brand, .looks, .lang, .foot a, .foot button';   // covered anywhere in their box
   const HOP = 16;              // its pose changes a little while it waves: a new bubble needs this much more room above
@@ -51,6 +53,7 @@ const bubble = (() => {
     button.className = 'companion-say';
     button.hidden = button.inert = true;
     button.setAttribute('aria-label', T.say || 'Customize us!');
+    button.setAttribute('data-companions-ignore', '');   // not part of the page: else it takes its speaker's headroom
     const canvas = document.createElement('canvas');
     canvas.setAttribute('aria-hidden', 'true');
     button.append(canvas);
@@ -88,7 +91,8 @@ const bubble = (() => {
   function show(now) {
     for (const id of new Set([...(defaults.speakers || []), ...regions.map(r => r.id)])) {
       const place = placeOf(id);
-      if (!place || place.t - HOP < 4 || covers(place, HOP) || !C.wave(id)) continue;
+      if (!place || place.t - HOP < 4 || covers(place, HOP) || !C.hold(id)) continue;
+      C.wave(id);
       speaker = id; until = now + 8000;
       put(place);
       button.hidden = button.inert = false;
@@ -98,7 +102,9 @@ const bubble = (() => {
     next = now + 4000;
   }
 
+  // (After destroy() the embed lets go by itself, and hold() would throw.)
   function hide() {
+    if (speaker && running) C.hold(speaker, false);
     speaker = null;
     if (button) button.hidden = button.inert = true;
   }
@@ -106,8 +112,8 @@ const bubble = (() => {
   function tick(now) {
     next ??= now + 2600;
     if (speaker) {
-      const place = placeOf(speaker, { fits: false });
-      if (now > until || !moving || !place || covers(place)) hide(); else put(place);
+      const r = regions.find(x => x.id === speaker), place = r && placeFor(r, { fits: false });
+      if (now > until || !moving || !r?.onHold || !place || covers(place)) hide(); else put(place);
     } else if (moving && now > next && !menu?.dialog.open) show(now);
   }
 
