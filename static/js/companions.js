@@ -155,6 +155,15 @@ function portrait(id, size) {
 }
 
 let menu = null, chosen = null;
+// The grid shows every companion's portrait: their designs load the first time the menu opens (one file;
+// those on screen always have theirs). Again after a restart (the embed's new runtime starts without them).
+let designs = 'no';           // 'no', 'loading', 'yes' or 'failed'
+const coming = new Set();     // put on screen, its own file still loading: it stays the chosen one meanwhile
+function needDesigns() {
+  if (designs !== 'no' || !running) return;
+  designs = 'loading';
+  C.load().then(() => { designs = 'yes'; }, e => { designs = 'failed'; console.error('companions:', e); }).finally(renderMenu);
+}
 
 function buildMenu() {
   const dialog = el('dialog', { className: 'cm' });
@@ -203,9 +212,10 @@ function renderMenu() {
     parts.groups.replaceChildren(el('p', { className: 'cm-empty', textContent: (failed ? T.failed : T.loading) || '' }));
     return;
   }
-  const designs = C.designs(), nameOf = id => designs.find(d => d.id === id)?.name || id;
+  needDesigns();
+  const listed = C.designs(), nameOf = id => listed.find(d => d.id === id)?.name || id;
   const { companions: here, motion } = C.getOptions();
-  if (!here.includes(chosen)) chosen = here[0] ?? null;
+  if (!here.includes(chosen) && !coming.has(chosen)) chosen = here[0] ?? null;
 
   parts.here.replaceChildren(...here.map(id => pressed(
     button(`here:${id}`, 'cm-chip', () => { chosen = id; renderMenu(); }, portrait(id, 52), nameOf(id)), id === chosen)));
@@ -238,12 +248,16 @@ function renderMenu() {
     parts.looks.replaceChildren(...rows);
   }
 
-  parts.groups.replaceChildren(...C.groups().map(group => el('div', { className: 'cm-group' },
+  if (designs !== 'yes') {
+    parts.groups.replaceChildren(el('p', { className: 'cm-empty', textContent: (designs === 'failed' ? T.failed : T.loading) || '' }));
+  } else parts.groups.replaceChildren(...C.groups().map(group => el('div', { className: 'cm-group' },
     el('h4', { textContent: label.group(group) }),
-    el('div', { className: 'cm-grid' }, ...designs.filter(d => d.group === group).map(d => {
+    el('div', { className: 'cm-grid' }, ...listed.filter(d => d.group === group).map(d => {
       const tile = pressed(button(`add:${d.id}`, 'cm-tile', () => {
-        if (!d.onScreen) chosen = d.id;
-        C.setOnScreen(d.id, !d.onScreen);
+        if (d.onScreen) { C.setOnScreen(d.id, false); return; }
+        chosen = d.id; coming.add(d.id);
+        Promise.resolve(C.setOnScreen(d.id, true)).catch(e => console.error('companions:', e))
+          .finally(() => { coming.delete(d.id); renderMenu(); });
       }, portrait(d.id, 104), d.name), d.onScreen);
       tile.title = d.about;
       return tile;
@@ -280,7 +294,7 @@ if (!C) {
   console.error('companions: the companions script did not load.');
 } else {
   C.on('start', () => {
-    running = true; failed = false;
+    running = true; failed = false; designs = 'no';
     moving = C.getOptions().motion === 'moving';
     bubble.start();
     renderMenu();

@@ -7,8 +7,8 @@ Everything a page says comes from content/: site.json (owner, links, settings), 
 (every interface text, the same keys in both languages), apps.json (the apps page) and legal/ (imprint
 and privacy policy, with {{placeholders}} filled from site.json). static/ is copied to /assets/. The
 companions come from vendor/companions (a git submodule pinned to one commit): its website embed is built
-into one file, /companions/companions.min.js, with Node and esbuild (`npm ci --prefix vendor/companions/web`
-once); Node is used for nothing else.
+into /companions/companions.min.js and the folder /companions/companions/ next to it (each companion's own
+file), with Node and esbuild (`npm ci --prefix vendor/companions/web` once); Node is used for nothing else.
 
 The build refuses to finish when a text is missing in one language, a placeholder is left unfilled, or
 a page would load anything from another host (the privacy policy promises it never does).
@@ -383,9 +383,10 @@ def write(path: str, text: str):
 
 
 def build_companions() -> int:
-    """The companions' website embed as one file, built from the pinned submodule by its own build
-    (vendor/companions/web/build.mjs) with every companion inside, so visitors can pick any of them in the menu.
-    Returns how many companions there are."""
+    """The companions' website embed, built from the pinned submodule by its own build
+    (vendor/companions/web/build.mjs): the script, and next to it the folder companions/ with every companion's
+    own file (loaded when one is put on screen) and their designs (for the menu's pictures), so visitors can pick
+    any of them in the menu. Returns how many companions there are."""
     index = COMPANIONS / "companions" / "index.json"
     if not index.exists():
         raise BuildError("vendor/companions is empty: run `git submodule update --init`")
