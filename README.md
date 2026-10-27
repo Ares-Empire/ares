@@ -29,8 +29,9 @@ languages.
 | `tools/import-showcase.py` | Copies the app pictures `content/apps.json` names from `empire-ios/showcase/`, sized for the web (needs Pillow). |
 
 Pages: `/en/`, `/en/apps/`, `/en/imprint/`, `/en/privacy/` and `/de/`, `/de/apps/`, `/de/impressum/`,
-`/de/datenschutz/`. Caddy sends `/` (and `/hi`, the address for the NFC tag) to `/de/` when the browser prefers
-German, else to `/en/`; `/impressum`, `/imprint`, `/datenschutz` and `/privacy` lead to their pages.
+`/de/datenschutz/`. Caddy sends `/` (and `/hi`, the address for the NFC tag) to `/en/`, whatever the browser's
+language (Patrik, 2026-10-27: English by default, German is the DE button); `/impressum`, `/imprint`, `/datenschutz`
+and `/privacy` lead to their pages.
 
 ## Working on it
 
