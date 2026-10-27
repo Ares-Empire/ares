@@ -157,8 +157,10 @@ p { margin: 0; }
 .home { flex: 1; display: flex; padding: clamp(4px, 2vh, 20px) var(--gutter) 96px; }   /* 96px: the companions' floor */
 .home-inner {
   flex: 1; width: 100%; max-width: 1120px; margin: 0 auto;
-  display: grid; grid-template-rows: auto 1fr auto; gap: clamp(28px, 6vh, 64px);
+  display: grid; grid-template-rows: 1fr auto; gap: clamp(28px, 6vh, 64px);
 }
+.first { display: grid; grid-template-rows: auto 1fr; gap: clamp(28px, 6vh, 64px); }
+.lead-short { display: none; }
 .intro { max-width: 700px; margin-top: clamp(4px, 3vh, 36px); }
 .intro h1 { font-size: clamp(44px, 6.2vw, 76px); line-height: 1; letter-spacing: -0.045em; }
 .lead { margin-top: 20px; max-width: 54ch; font-size: clamp(17px, 1.6vw, 19.5px); line-height: 1.55; color: var(--ink-2); }
@@ -317,8 +319,20 @@ dialog.cm::backdrop { background: rgba(5,5,7,.12); }
   .app:last-child:nth-child(odd) { width: auto; }
 }
 @media (max-width: 760px) {
-  .tiles { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-  .tile { flex-direction: row; align-items: center; justify-content: flex-start; gap: 16px; min-height: 0; padding: 16px 18px; }
+  /* The phone's first screen is the business card: name, one short line, the three buttons near the thumb at the
+     bottom; the projects only after scrolling. */
+  .first {
+    display: flex; flex-direction: column; gap: 0;
+    min-height: calc(100svh - 74px - env(safe-area-inset-top) - 20px);
+  }
+  .intro { margin-top: clamp(16px, 9vh, 88px); }
+  .intro h1 { font-size: clamp(44px, 13vw, 56px); }
+  .lead-full { display: none; }
+  .lead-short { display: block; margin-top: 14px; font-size: 16px; letter-spacing: 0.01em; color: var(--ink-3); }
+  .first .tiles { margin-top: auto; padding: 36px 0 8px; }
+  .home { padding-bottom: 104px; }
+  .tiles { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .tile { flex-direction: row; align-items: center; justify-content: flex-start; gap: 16px; min-height: 76px; padding: 16px 18px; }
   .tile > .icon { position: static; margin-left: auto; }
   .tile-icon { width: 44px; height: 44px; flex: none; }
   .stack img { width: 30px; height: 30px; border-radius: 8px; }

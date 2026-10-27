@@ -213,15 +213,20 @@ def page_home(lang: str, s: Strings, site: dict, count: int, apps: list[dict]) -
     # (companions engine, world.js): here only the short "Currently building" heading, where they cover nothing.
     return f"""<main class="home" data-companions>
   <div class="home-inner">
-    <section class="intro window" id="intro" aria-labelledby="name">
-      <h1 id="name">Patrik Breeck</h1>
-      <p class="lead">{s('home.lead')}</p>
-    </section>
-    <nav class="tiles" aria-label="{s('home.links')}">
+    <!-- The first screen: on a phone (where an NFC tap lands) it fills the screen as a business card, with the short
+         line and the three buttons within thumb's reach; the projects follow below. -->
+    <div class="first">
+      <section class="intro window" id="intro" aria-labelledby="name">
+        <h1 id="name">Patrik Breeck</h1>
+        <p class="lead lead-full">{s('home.lead')}</p>
+        <p class="lead lead-short">{s('home.short')}</p>
+      </section>
+      <nav class="tiles" aria-label="{s('home.links')}">
 {tile("tile-apps", apps_url, f'<span class="stack">{stack}</span>', s('home.appsTitle'), s('home.appsSub'), external=False)}
 {tile("tile-github", links['github'], ICONS['github'], "GitHub", s('home.githubSub'), external=True)}
 {tile("tile-linkedin", links['linkedin'], ICONS['linkedin'], "LinkedIn", s('home.linkedinSub'), external=True)}
-    </nav>
+      </nav>
+    </div>
     <section class="current" aria-labelledby="current-title">
       <div role="document"><h2 class="eyebrow" id="current-title">{s('projects.title')}</h2></div>
       <ul class="projects">
