@@ -289,14 +289,24 @@ def shots(app: dict, s: Strings) -> str:
             + "".join(imgs) + "</div>")
 
 
+def request_link(app: dict, site: dict, lang: str) -> str:
+    """Where an app's Request access button goes: the app's own contact form when it has one (apps.json "request", an
+    address per language; Aresium's on aresium.de since 2026-10-30), else the Ares Empire's general contact form
+    (site.json links.contact)."""
+    links = app.get("request") or site["links"]["contact"]
+    if not isinstance(links, dict) or not all(str(links.get(l, "")).startswith("https://") for l in LANGS):
+        raise BuildError(f"apps.json: {app['id']}'s request needs an https address for each language ({', '.join(LANGS)})")
+    return links[lang]
+
+
 def page_apps(lang: str, s: Strings, site: dict, apps: list[dict]) -> str:
-    contact = esc(site["links"]["contact"][lang])
     cards = []
     for app in apps:
         text = app["text"][lang]
         points = "".join(f"<li>{esc(p)}</li>" for p in text["points"])
         if app["availability"] == "request":
-            action = f'<a class="btn primary accent" href="{contact}">{s("apps.request")}{ICONS["arrow"]}</a>'
+            action = (f'<a class="btn primary accent" href="{esc(request_link(app, site, lang))}">{s("apps.request")}'
+                      f'{ICONS["arrow"]}</a>')
         elif app["availability"] == "showcase":
             action = ""          # shown on the page, no way to ask for it
         else:
