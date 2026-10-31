@@ -18,8 +18,11 @@
     "aresos": null
   },
   "companions": {
-    "desktop": ["clawd", "clippy", "creeper"],
-    "phone": ["clawd", "clippy"],
-    "speakers": ["clippy", "clawd"]
+    "_comment": "Who comes on each page that has companions, before a visitor chooses: only the companions' own designs, no brands (Patrik, 2026-10-31). desktop: wide screens; phone: phones (the first one says \"Customize us!\" first). looks: starting looks the visitor can change (never saved for them). Ids and skins: vendor/companions/companions/.",
+    "pages": {
+      "home": { "desktop": ["ares", "baby-dragon", "ghost"], "phone": ["ares", "baby-dragon"] },
+      "apps": { "desktop": ["artemis", "hamster", "snail"], "phone": ["artemis", "hamster"] }
+    },
+    "looks": { "ares": { "skin": "golden" } }
   }
 }

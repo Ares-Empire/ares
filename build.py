@@ -413,6 +413,52 @@ def build_companions() -> int:
     return len(load_json(index))
 
 
+def check_companion_defaults(site: dict) -> None:
+    """Who each page brings (site.json companions.pages) and their starting looks (companions.looks) must exist in
+    the pinned companions: a misspelled id or skin would quietly leave a companion out or in its plain look."""
+    conf = site["companions"]
+    known = set(load_json(COMPANIONS / "companions" / "index.json"))
+    problems = []
+    for page, lists in conf["pages"].items():
+        if page not in PAGES:
+            problems.append(f"companions.pages.{page}: there is no such page")
+        for kind in ("desktop", "phone"):
+            if not lists.get(kind):
+                problems.append(f"companions.pages.{page}.{kind}: no companions")
+            for cid in lists.get(kind, []):
+                if cid not in known:
+                    problems.append(f"companions.pages.{page}.{kind}: no companion called {cid!r}")
+    looks = conf.get("looks", {})
+    ids = [cid for cid in looks if cid in known]
+    # A companion's skins come from the engine itself (its own skins and the shared ones), read by Node.
+    script = ("import fs from 'node:fs'; import { skinsFor } from './engine/skins.js'; const out = {}; "
+              "for (const id of JSON.parse(process.argv[1])) "
+              "out[id] = skinsFor(JSON.parse(fs.readFileSync(`companions/${id}/design.json`, 'utf8'))); "
+              "console.log(JSON.stringify(out));")
+    result = subprocess.run([shutil.which("node"), "--input-type=module", "-e", script, json.dumps(ids)],
+                            cwd=COMPANIONS, capture_output=True, text=True)
+    if result.returncode != 0:
+        raise BuildError("could not read the companions' skins:\n  " + (result.stderr or result.stdout).strip())
+    skins = json.loads(result.stdout)
+    for cid, look in looks.items():
+        if cid not in known:
+            problems.append(f"companions.looks: no companion called {cid!r}")
+        elif "skin" in look and look["skin"] not in skins[cid]:
+            problems.append(f"companions.looks.{cid}.skin: {cid} has no skin {look['skin']!r}")
+    if problems:
+        raise BuildError("\n  ".join(["site.json's companions don't match the companions:", *problems]))
+
+
+def companions_for(page: str, lang: str, s: Strings, site: dict) -> dict | None:
+    """What the page's companion script gets (static/js/companions.js), or None for a page without companions."""
+    conf = site["companions"]
+    lists = conf["pages"].get(page)
+    if not lists:
+        return None
+    return {"lang": lang, "menu": s.get("menu"), "repo": site["repos"]["companions"],
+            "defaults": {"desktop": lists["desktop"], "phone": lists["phone"], "looks": conf.get("looks", {})}}
+
+
 def check_output(site: dict) -> list[str]:
     problems = []
     own = re.escape(site["domain"])
@@ -446,19 +492,20 @@ def build() -> list[str]:
     for name in ("favicon.svg", "apple-touch-icon.png"):
         shutil.copy2(STATIC / name, DIST / name)
     count = build_companions()
+    check_companion_defaults(site)
     (DIST / "assets" / "css" / "apps.css").write_text(apps_css(apps), encoding="utf-8")
     apps_css_url = "/assets/css/apps.css?v=" + hashlib.sha256(apps_css(apps).encode()).hexdigest()[:10]
 
     for lang in LANGS:
         s = STRINGS[lang]
-        menu = s.get("menu")
-        companions = {"lang": lang, "menu": menu, "defaults": site["companions"], "repo": site["repos"]["companions"]}
         write(PAGES["home"][lang], layout(lang, "home", s, site, title=s("meta.homeTitle"),
                                           description=s("meta.homeDescription"),
-                                          body=page_home(lang, s, site, count, apps), companions=companions))
+                                          body=page_home(lang, s, site, count, apps),
+                                          companions=companions_for("home", lang, s, site)))
         write(PAGES["apps"][lang], layout(lang, "apps", s, site, title=s("meta.appsTitle"),
                                           description=s("meta.appsDescription"),
-                                          body=page_apps(lang, s, site, apps), extra_css=apps_css_url))
+                                          body=page_apps(lang, s, site, apps), extra_css=apps_css_url,
+                                          companions=companions_for("apps", lang, s, site)))
         for which in ("imprint", "privacy"):
             write(PAGES[which][lang], layout(lang, which, s, site, title=s(f"meta.{which}Title"),
                                              description=s(f"meta.{which}Title"), body=page_legal(lang, which, site)))

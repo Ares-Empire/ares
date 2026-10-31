@@ -74,10 +74,13 @@ top edge) and `data-companions-ignore` (leave this alone) correct it. The home p
 they would take part of its click area and leave no room for the bubble.
 
 `static/js/companions.js` is the site's part, on the embed's API (`window.Companions`) only, with no engine code. It
-starts them with `content/site.json` → `companions` (`desktop`, and `phone` for phones, at a smaller size), shows the
-"Customize us!" bubble over one of them now and then (`speakers` first; never over a heading, text, a tile or a
-control), and builds the translated menu (`content/strings.*.json` → `menu`), opened by the bubble and by every
-`[data-companions-menu]` button (the footer's). The visitor's choices are the embed's: localStorage under
+starts them with `content/site.json` → `companions`: each page's own (`pages.home`, `pages.apps`: `desktop`, and
+`phone` for phones, at a smaller size) and their starting looks (`looks`, e.g. Ares in his golden skin), which the
+visitor can change. Only the companions' own designs, no brands (Patrik, 2026-10-31); `build.py` stops on an id or
+skin the pinned companions don't have. It shows the "Customize us!" bubble over one of them now and then (the page's
+own first; never over a heading, text, a tile or a control), and builds the translated menu (`content/strings.*.json`
+→ `menu`), opened by the bubble, by a click on a companion (on that companion) and by every `[data-companions-menu]`
+button (the footer's). The visitor's choices are the embed's: localStorage under
 `companions.` (and `companions.menuSeen`, the site's), the Motion choice in sessionStorage for the visit; "Start over"
 removes them. Choices saved by the site's earlier host of its own (`companion.<id>`) are moved over once.
 

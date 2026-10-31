@@ -30,6 +30,9 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
 - **Layout of the home page** (Patrik, 2026-10-26): name and intro top left, three large tiles across the middle
   (iPhone apps, GitHub, LinkedIn), the projects small at the bottom. No separate companions page: a companion says
   "Customize us!" and opens the menu.
+- **Default companions per page** (`content/site.json` → `companions`, Patrik 2026-10-31): only the companions' own
+  designs (critters, mythology), never brands (Clawd, Clippy, apps, games, Minecraft); each page its own set (home:
+  Ares in his golden skin and two more; apps: three others). A click on a companion opens the menu on it.
 - **The companions are not edited here.** They are the pinned submodule `vendor/companions`, whose website embed
   `build.py` builds; changes to them go to the companions repo. The site uses only the embed's API (`window.Companions`,
   `vendor/companions/web/README.md`): `static/js/companions.js` holds the bubble and the menu and never imports engine

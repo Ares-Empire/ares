@@ -1,7 +1,7 @@
-// The companions on the home page. They are the Companions website embed (vendor/companions/web, built by build.py
+// The companions on the pages that have them (home and apps). They are the Companions website embed (vendor/companions/web, built by build.py
 // into /companions/companions.min.js, whose tag comes just before this file): it draws them, finds their places on
 // the page, lets visitors pick them up and keeps their choices in this browser. This file only uses its API,
-// window.Companions (vendor/companions/web/README.md): it starts them with the site's defaults (content/site.json)
+// window.Companions (vendor/companions/web/README.md): it starts them with the page's defaults (content/site.json)
 // and adds the site's own parts, the "Customize us!" bubble and the translated menu. No engine code here.
 
 const config = JSON.parse(document.getElementById('companions-config')?.textContent || '{}');
@@ -87,9 +87,10 @@ const bubble = (() => {
   const placeOf = (id, options) => { const r = regions.find(x => x.id === id); return r ? placeFor(r, options) : null; };
   function put(place) { button.style.left = place.l + 'px'; button.style.top = place.t + 'px'; }
 
-  // The site's speakers first, then anyone on the page: the first free one whose bubble covers nothing waves.
+  // The page's own companions first, in their order, then anyone else on the page: the first free one whose bubble
+  // covers nothing waves.
   function show(now) {
-    for (const id of new Set([...(defaults.speakers || []), ...regions.map(r => r.id)])) {
+    for (const id of new Set([...(defaults.desktop || []), ...regions.map(r => r.id)])) {
       const place = placeOf(id);
       if (!place || place.t - HOP < 4 || covers(place, HOP) || !C.hold(id)) continue;
       C.wave(id);
@@ -195,8 +196,11 @@ function buildMenu() {
       el('section', { className: 'cm-section' }, el('h3', { className: 'eyebrow', textContent: T.add || '' }), parts.groups),
       el('div', { className: 'cm-foot' }, el('p', {}, T.footer || '', repo ? ' ' : '', repo), reset)),
   );
-  // A click on the dimmed page beside the sheet closes it.
-  dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
+  // A click on the dimmed page beside the sheet closes it, but only when the press began there too (as the embed's own
+  // sheet does): a tap on a companion opens the menu, and the click the phone sends after that tap lands beside it.
+  let pressedBeside = false;
+  dialog.addEventListener('pointerdown', e => { pressedBeside = e.target === dialog; });
+  dialog.addEventListener('click', e => { if (pressedBeside && e.target === dialog) dialog.close(); pressedBeside = false; });
   document.body.append(dialog);
   return { dialog, parts };
 }
@@ -266,8 +270,10 @@ function renderMenu() {
   if (focused) menu.dialog.querySelector(`[data-key="${CSS.escape(focused)}"]`)?.focus();
 }
 
-function openMenu() {
+// Opens the menu; with an id (a companion was clicked), on that companion's looks.
+function openMenu(id) {
   bubble.hide();
+  if (id) chosen = id;
   store.set(KEY_SEEN, '1');
   menu ??= buildMenu();
   if (!menu.dialog.open) menu.dialog.showModal();
@@ -306,8 +312,12 @@ if (!C) {
   });
   C.on('hitRegions', list => bubble.setRegions(list));
   C.on('frame', now => bubble.tick(now));
+  // A click on a companion opens the menu on it (after its own little hop and hearts).
+  C.on('click', ({ id }) => openMenu(id));
   carryOver();
-  C.start({ companions: defaults.desktop, phone: { companions: defaults.phone } }).catch(e => {
+  // Each page brings its own companions (site.json companions.pages) and their starting looks (companions.looks):
+  // the visitor's own choices win over both.
+  C.start({ companions: defaults.desktop, phone: { companions: defaults.phone }, looks: defaults.looks }).catch(e => {
     failed = true;
     console.error('companions:', e);
     renderMenu();
