@@ -175,8 +175,8 @@ def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, descript
 <meta name="theme-color" content="#050507">
 <link rel="canonical" href="{base}{PAGES[page][lang]}">
 {alternates}<link rel="alternate" hreflang="x-default" href="{base}/">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="{versioned("/favicon.svg", STATIC / "favicon.svg")}" type="image/svg+xml">
+<link rel="apple-touch-icon" href="{versioned("/apple-touch-icon.png", STATIC / "apple-touch-icon.png")}">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-Variable.ttf" as="font" type="font/ttf" crossorigin>
 <script src="{asset_url("js/theme.js")}"></script>
 {css}</head>
