@@ -22,7 +22,7 @@
     "red": "Rot und Gold"
   },
   "home": {
-    "lead": "Wirtschaftsinformatik-Student an der TUM, tätig bei Munich Re, mit Software-Projekten nebenbei. Probier die iPhone-Apps aus und wünsch dir Features, oder triff die Pixel-Companions, die auf dieser Seite herumlaufen.",
+    "lead": "Wirtschaftsinformatik-Student an der TUM, tätig bei Munich Re, mit Software-Projekten nebenbei. Die iPhone-Apps stehen zum Ausprobieren bereit, Feature-Wünsche sind willkommen, und über diese Seite laufen Pixel-Companions.",
     "links": "Links",
     "appsTitle": "iPhone-Apps",
     "appsSub": "Ausprobieren, Features wünschen",
@@ -60,11 +60,11 @@
     "choose": "App auswählen"
   },
   "menu": {
-    "say": "Pass uns an!",
+    "say": "Uns anpassen!",
     "title": "Companions",
-    "intro": "Wähle, wer auf dieser Seite wohnt und wie sie aussehen. Deine Auswahl bleibt nur in diesem Browser.",
+    "intro": "Wer auf dieser Seite wohnt und wie sie aussehen, lässt sich hier wählen. Die Auswahl bleibt nur in diesem Browser.",
     "here": "Auf dieser Seite",
-    "none": "Niemand ist da. Füge unten jemanden hinzu.",
+    "none": "Niemand ist da. Unten lässt sich jemand hinzufügen.",
     "motion": {
       "label": "Bewegung",
       "moving": "In Bewegung",
@@ -73,7 +73,7 @@
       "hints": {
         "moving": "Sie laufen, schlafen und besuchen sich von selbst.",
         "still": "Sie halten für diesen Besuch still auf ihren Plätzen und lassen sich weiter hochheben.",
-        "hidden": "Für diesen Besuch nicht auf der Seite, bis du sie hier zurückholst."
+        "hidden": "Für diesen Besuch nicht auf der Seite, bis sie hier zurückgeholt werden."
       }
     },
     "looks": "Aussehen",

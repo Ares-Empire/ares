@@ -62,7 +62,7 @@
   "menu": {
     "say": "Customize us!",
     "title": "Companions",
-    "intro": "Choose who lives on this page and how they look. Your choice is saved only in this browser.",
+    "intro": "Choose who lives on this page and how they look. The choice is saved only in this browser.",
     "here": "On this page",
     "none": "Nobody is here. Add someone below.",
     "motion": {
@@ -73,7 +73,7 @@
       "hints": {
         "moving": "They walk, nap and visit each other on their own.",
         "still": "They hold still on their spots for this visit and can still be picked up.",
-        "hidden": "Off the page for this visit, until you bring them back here."
+        "hidden": "Off the page for this visit, until brought back here."
       }
     },
     "looks": "Looks",

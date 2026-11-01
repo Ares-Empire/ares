@@ -110,9 +110,9 @@
       },
       "text": {
         "en": {
-          "tagline": "All your Ares apps in one place.",
+          "tagline": "All Ares apps in one place.",
           "points": [
-            "Every app you use on one ring, with its live status",
+            "Every app in use on one ring, with its live status",
             "More apps requested with a tap",
             "What's new across all apps, on one timeline"
           ]
@@ -120,7 +120,7 @@
         "de": {
           "tagline": "Alle Ares-Apps an einem Ort.",
           "points": [
-            "Jede App, die du nutzt, auf einem Ring, mit aktuellem Status",
+            "Jede genutzte App auf einem Ring, mit aktuellem Status",
             "Weitere Apps mit einem Tipp anfragen",
             "Neuigkeiten aus allen Apps auf einer Zeitleiste"
           ]
@@ -153,8 +153,8 @@
           "tagline": "A personal wiki, on every device.",
           "points": [
             "Detailed notes and fact-based positions, always at hand",
-            "RAG search that answers from your own knowledge",
-            "Edits synced across all your devices"
+            "RAG search that answers from personal knowledge",
+            "Edits synced across all devices"
           ]
         },
         "de": {
