@@ -315,9 +315,13 @@ if (!C) {
   // A click on a companion opens the menu on it (after its own little hop and hearts).
   C.on('click', ({ id }) => openMenu(id));
   carryOver();
-  // Each page brings its own companions (site.json companions.pages) and their starting looks (companions.looks):
-  // the visitor's own choices win over both.
-  C.start({ companions: defaults.desktop, phone: { companions: defaults.phone }, looks: defaults.looks }).catch(e => {
+  // Each page brings its own companions (site.json companions.pages), where they start (spots, for desktop and
+  // phone) and their starting looks (companions.looks): the visitor's own choices win over all of it. scroll 'ride':
+  // they stay on their spot when the page scrolls, out of view with it, instead of falling.
+  const spots = defaults.spots || {};
+  C.start({ companions: defaults.desktop, spots: spots.desktop || {},
+    phone: { companions: defaults.phone, spots: spots.phone || {} },
+    looks: defaults.looks, scroll: defaults.scroll }).catch(e => {
     failed = true;
     console.error('companions:', e);
     renderMenu();

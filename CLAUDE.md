@@ -32,7 +32,10 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
   "Customize us!" and opens the menu.
 - **Default companions per page** (`content/site.json` → `companions`, Patrik 2026-10-31): only the companions' own
   designs (critters, mythology), never brands (Clawd, Clippy, apps, games, Minecraft); each page its own set (home:
-  Ares in his golden skin and two more; apps: three others). A click on a companion opens the menu on it.
+  Ares in his golden skin, Pippin the hedgehog and Mallow the ghost; apps: three others), each starting on a fixed
+  spot (`spots`). A click on a companion opens the menu on it. Scrolling never knocks them down (`scroll: "ride"`,
+  2026-11-01): they stay on their spot and leave the screen with it. Mallow drifting down and vanishing to reappear
+  elsewhere is its own way to travel, not a bug.
 - **The companions are not edited here.** They are the pinned submodule `vendor/companions`, whose website embed
   `build.py` builds; changes to them go to the companions repo. The site uses only the embed's API (`window.Companions`,
   `vendor/companions/web/README.md`): `static/js/companions.js` holds the bubble and the menu and never imports engine

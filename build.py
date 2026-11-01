@@ -413,6 +413,21 @@ def build_companions() -> int:
     return len(load_json(index))
 
 
+def spot_problems(where: str, cid: str, spot: dict, coming: list[str]) -> list[str]:
+    """What is wrong with one starting spot in site.json (companions.pages.<page>.spots.<desktop|phone>.<id>)."""
+    problems = []
+    if cid not in coming:
+        problems.append(f"{where}: {cid!r} isn't one of the companions this view brings")
+    if not isinstance(spot.get("on"), str) or not spot["on"].strip():
+        problems.append(f"{where}.on: a CSS selector is needed")
+    at = spot.get("at", 0.5)
+    if isinstance(at, bool) or not isinstance(at, (int, float)) or not 0 <= at <= 1:
+        problems.append(f"{where}.at: a number from 0 to 1")
+    if spot.get("rest", "stand") not in ("stand", "sit"):
+        problems.append(f"{where}.rest: stand or sit")
+    return problems
+
+
 def check_companion_defaults(site: dict) -> None:
     """Who each page brings (site.json companions.pages) and their starting looks (companions.looks) must exist in
     the pinned companions: a misspelled id or skin would quietly leave a companion out or in its plain look."""
@@ -428,6 +443,17 @@ def check_companion_defaults(site: dict) -> None:
             for cid in lists.get(kind, []):
                 if cid not in known:
                     problems.append(f"companions.pages.{page}.{kind}: no companion called {cid!r}")
+        # Starting spots, per desktop and phone: only for companions that view brings; `on` is a CSS selector (the
+        # companions' script warns in the console when it matches nothing), `at` a fraction along the spot.
+        for kind, spots in lists.get("spots", {}).items():
+            if kind not in ("desktop", "phone"):
+                problems.append(f"companions.pages.{page}.spots.{kind}: desktop or phone")
+                continue
+            for cid, spot in spots.items():
+                where = f"companions.pages.{page}.spots.{kind}.{cid}"
+                problems.extend(spot_problems(where, cid, spot, lists.get(kind, [])))
+    if conf.get("scroll", "fall") not in ("fall", "ride"):
+        problems.append("companions.scroll: fall or ride")
     looks = conf.get("looks", {})
     ids = [cid for cid in looks if cid in known]
     # A companion's skins come from the engine itself (its own skins and the shared ones), read by Node.
@@ -456,7 +482,8 @@ def companions_for(page: str, lang: str, s: Strings, site: dict) -> dict | None:
     if not lists:
         return None
     return {"lang": lang, "menu": s.get("menu"), "repo": site["repos"]["companions"],
-            "defaults": {"desktop": lists["desktop"], "phone": lists["phone"], "looks": conf.get("looks", {})}}
+            "defaults": {"desktop": lists["desktop"], "phone": lists["phone"], "spots": lists.get("spots", {}),
+                         "looks": conf.get("looks", {}), "scroll": conf.get("scroll", "fall")}}
 
 
 def check_output(site: dict) -> list[str]:

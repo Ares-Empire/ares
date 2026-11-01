@@ -18,11 +18,38 @@
     "aresos": null
   },
   "companions": {
-    "_comment": "Who comes on each page that has companions, before a visitor chooses: only the companions' own designs, no brands (Patrik, 2026-10-31). desktop: wide screens; phone: phones (the first one says \"Customize us!\" first). looks: starting looks the visitor can change (never saved for them). Ids and skins: vendor/companions/companions/.",
+    "_comment": "Who comes on each page that has companions, before a visitor chooses: only the companions' own designs, no brands (Patrik, 2026-10-31). desktop: wide screens; phone: phones (the first one says \"Customize us!\" first). spots: where each starts on every visit, per desktop and phone (on: a CSS selector of the page, a heading or a box; at: 0 to 1 along it, 0.5 without). A companion only starts where its whole height fits under what is above (Ares and Artemis need about 92 px on desktop, 69 on a phone; the critters 56 to 72): one whose spot is off screen or too low starts somewhere else. The apps page names the phone picture in front (f-) or behind (b-) in the current look, as site.css shows them. looks: starting looks the visitor can change (never saved for them). scroll ride: they stay on their spot when the page scrolls, out of view with it, instead of falling (Patrik, 2026-11-01). Ids and skins: vendor/companions/companions/.",
     "pages": {
-      "home": { "desktop": ["ares", "baby-dragon", "ghost"], "phone": ["ares", "baby-dragon"] },
-      "apps": { "desktop": ["artemis", "hamster", "snail"], "phone": ["artemis", "hamster"] }
+      "home": {
+        "desktop": ["ares", "hedgehog", "ghost"], "phone": ["ares", "hedgehog"],
+        "spots": {
+          "desktop": {
+            "ares": { "on": "#name", "at": 0.8 },
+            "hedgehog": { "on": "#current-title", "at": 0.5 },
+            "ghost": { "on": ".tiles > :last-child", "at": 0.7 }
+          },
+          "phone": {
+            "ares": { "on": "#name", "at": 0.8 },
+            "hedgehog": { "on": ".tiles > :first-child", "at": 0.75 }
+          }
+        }
+      },
+      "apps": {
+        "desktop": ["artemis", "hamster", "snail"], "phone": ["artemis", "hamster"],
+        "spots": {
+          "desktop": {
+            "artemis": { "on": ":root[data-theme=light] #arestemis .b-light, :root[data-theme=dark] #arestemis .b-dark, :root[data-theme=red] #arestemis .b-red" },
+            "hamster": { "on": ":root[data-theme=light] #aresium .f-light, :root[data-theme=dark] #aresium .f-dark, :root[data-theme=red] #aresium .f-red" },
+            "snail": { "on": ":root[data-theme=light] #aresium .b-light, :root[data-theme=dark] #aresium .b-dark, :root[data-theme=red] #aresium .b-red" }
+          },
+          "phone": {
+            "artemis": { "on": ":root[data-theme=light] #aresium .b-light, :root[data-theme=dark] #aresium .b-dark, :root[data-theme=red] #aresium .b-red" },
+            "hamster": { "on": ":root[data-theme=light] #aresium .f-light, :root[data-theme=dark] #aresium .f-dark, :root[data-theme=red] #aresium .f-red" }
+          }
+        }
+      }
     },
-    "looks": { "ares": { "skin": "golden" } }
+    "looks": { "ares": { "skin": "golden" } },
+    "scroll": "ride"
   }
 }
