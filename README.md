@@ -20,7 +20,7 @@ languages.
 | `content/strings.en.json`, `strings.de.json` | Every text on the site. Both files must have the same keys: the build fails otherwise. |
 | `content/apps.json` | The apps page: each app's text in both languages, its accent, whether others can request it and where (the app's own contact form, else the Ares Empire's), its repo once public, its screenshots. |
 | `content/legal/` | Imprint and privacy policy, one file per language, with `{{placeholders}}` filled from `site.json`. |
-| `static/` | CSS, the look switcher (`js/theme.js`), the background line (`js/flow.js`), the companions' bubble and menu (`js/companions.js`), the font, images, favicon. Copied to `/assets/`. |
+| `static/` | CSS, the look switcher (`js/theme.js`), the background line (`js/flow.js`), the apps page's cards (`js/apps.js`), the companions' bubble and menu (`js/companions.js`), the font, images, favicon. Copied to `/assets/`. |
 | `static/img/apps/<app>/` | The apps' pictures, imported from empire-ios's showcase by `tools/import-showcase.py` (`SOURCE` names the commit). |
 | `vendor/companions` | The companions repo as a git submodule, pinned to one commit. Its website embed is built into one file, `/companions/companions.min.js`. |
 | `build.py` | Makes `dist/` from the above (Python 3, no packages; it runs Node only to build the companions' file). |
@@ -49,6 +49,17 @@ The build stops, with the reason, when a text exists in only one language, a pla
 would load something from another host, or Node or esbuild is missing (it says what to run). Look at the pages through
 `tools/serve.py`: the browser then reports anything the server's Content-Security-Policy would block.
 
+### The apps page
+
+A row of small cards, one per app in the order of `content/apps.json`, and below it the chosen app's details: its
+iPhones beside its text (above it on a phone). Where the cards don't all fit (a phone, a window under 960 px) the row
+scrolls sideways and the next card peeks in. `static/js/apps.js` makes the row WAI-ARIA tabs (arrow keys, Home, End)
+and keeps the chosen app in the address: `/en/apps/#arestemis` opens with Arestemis chosen, a click replaces the
+address (Back leaves the page) and the language switch keeps it. All apps' details are in the page; `site.css` stacks
+them in one place and shows the chosen one, so the frame keeps the tallest one's height and nothing below it moves.
+`theme.js` marks `<html class="js">` in the head, so this layout is there from the first frame; without scripts the row
+is hidden and every app's details show, one below another.
+
 ### The apps' pictures
 
 The apps page shows two iPhones per app: in front the screen for the current look, behind it another one. The pictures
@@ -71,7 +82,9 @@ edges) and never stands where it would cover text; a click on a companion never 
 touching one holds it instead of scrolling. Where it chooses wrong, `data-companions-surface` (stand on this element's
 top edge) and `data-companions-ignore` (leave this alone) correct it. The home page marks the tiles' insides
 `data-companions-ignore` (`build.py` → `tile`): companions stand on a tile's top edge, not on the button itself, where
-they would take part of its click area and leave no room for the bubble.
+they would take part of its click area and leave no room for the bubble. On the apps page the lead is
+`data-companions-surface` (a paragraph has no edge of its own; the companions start on it) and each app's details are
+`data-companions-ignore` (choosing another app would take a place in there away from under a companion).
 
 `static/js/companions.js` is the site's part, on the embed's API (`window.Companions`) only, with no engine code. It
 starts them with `content/site.json` → `companions`: each page's own (`pages.home`, `pages.apps`: `desktop`, and

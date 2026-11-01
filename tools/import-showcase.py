@@ -5,7 +5,7 @@
 
 The showcase (empire-ios/showcase/<app>/NN-name.png, made by its scripts/showcase.py: each screen in a drawn
 iPhone, sample data only) stays the source. This takes the shots content/apps.json names under "shots", scales
-them to 440 px wide (the page shows them at about 200 px) and saves them as WebP with their transparent
+them to 440 px wide (the page shows them at up to 228 px, sharp on 2x screens) and saves them as WebP with their transparent
 background, plus static/img/apps/SOURCE with the empire-ios commit they came from. Run it again after the
 showcase is re-shot, then build. Needs Pillow.
 """

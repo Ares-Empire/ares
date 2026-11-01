@@ -3,9 +3,9 @@
 // never quite repeats: it turns at most 20° a second and never goes slower or faster than a set range, so it draws
 // clean arcs and never stops, jerks or spins. It does not react to the pointer (Patrik, 2026-10-26: calm and clean).
 //
-// A page can keep it beside its content: an element marked data-flow-column (the apps' cards) makes it travel down
-// one side and up the other, crossing above and below the window, with a longer trail, whenever there is room beside
-// that element. Off with prefers-reduced-motion.
+// A page can keep it beside its content: an element marked data-flow-column (the apps page's cards and details) makes
+// it travel down one side and up the other, crossing above and below the window, with a longer trail, whenever there is
+// room beside that element. Off with prefers-reduced-motion.
 //
 // How it is drawn (2026-10-31, smoother and cleaner): soft round lights are stamped along the trail onto a second,
 // unseen canvas, where they overlap into one smooth band whose colour and strength follow the trail without steps or

@@ -56,7 +56,8 @@
     "repo": "Code on GitHub",
     "shotAlt": "{name} on the iPhone",
     "privacy": "Privacy policy of the apps",
-    "demo": "Try the demo"
+    "demo": "Try the demo",
+    "choose": "Choose an app"
   },
   "menu": {
     "say": "Customize us!",

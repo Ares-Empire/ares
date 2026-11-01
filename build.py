@@ -139,7 +139,7 @@ def asset_url(name: str) -> str:
 
 
 def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, description: str, body: str,
-           companions: dict | None = None, extra_css: str = "") -> str:
+           companions: dict | None = None, extra_css: str = "", extra_js: str = "") -> str:
     other = "de" if lang == "en" else "en"
     others = STRINGS[other]
     base = f"https://{site['domain']}"
@@ -155,6 +155,8 @@ def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, descript
                       f'aria-label="{s("looks." + look)}" title="{s("looks." + look)}"></button>' for look in LOOKS)
     customize = ""
     scripts = f'<script type="module" src="{asset_url("js/flow.js")}"></script>\n'   # the line drifting behind every page
+    if extra_js:   # before the companions' scripts, so the page is laid out as it starts when they look for places
+        scripts += f'<script type="module" src="{asset_url(extra_js)}"></script>\n'
     if companions is not None:
         # The embed (built by build_companions) waits for the site's script, which starts it with the defaults and adds
         # the bubble and the menu; the footer's button opens that menu, so the embed's own round button stays away.
@@ -299,41 +301,69 @@ def request_link(app: dict, site: dict, lang: str) -> str:
     return links[lang]
 
 
+def app_tab(app: dict, lang: str, current: bool) -> str:
+    """An app's small card in the row: icon, name in the app's accent, tagline. static/js/apps.js makes it a tab."""
+    aid = esc(app["id"])
+    return f"""      <button type="button" class="app-tab card app--{aid}{' is-current' if current else ''}" id="tab-{aid}" data-app="{aid}">
+        <span class="app-tab-head"><img src="/assets/img/apps/{esc(app['icon'])}" alt="" width="34" height="34"><span class="app-tab-name">{esc(app['name'])}</span></span>
+        <span class="app-tab-tagline">{esc(app['text'][lang]['tagline'])}</span>
+      </button>"""
+
+
+def app_details(app: dict, s: Strings, site: dict, lang: str, current: bool) -> str:
+    """An app's details: name, tagline, points and buttons, beside its iPhone pictures (above them on a phone).
+    data-companions-ignore: the companions never stand in here, where the next app's details replace these; choosing an
+    app would otherwise take their place away from under them."""
+    aid = esc(app["id"])
+    text = app["text"][lang]
+    points = "".join(f"<li>{esc(p)}</li>" for p in text["points"])
+    if app["availability"] == "request":
+        action = (f'<a class="btn primary accent" href="{esc(request_link(app, site, lang))}">{s("apps.request")}'
+                  f'{ICONS["arrow"]}</a>')
+    elif app["availability"] == "showcase":
+        action = ""          # shown on the page, no way to ask for it
+    else:
+        raise BuildError(f"apps.json: {app['id']} has an unknown availability '{app['availability']}'")
+    demo = (f'<a class="btn" href="{esc(app["demo"])}" rel="noopener">{s("apps.demo")}{ICONS["external"]}</a>'
+            if app.get("demo") else "")
+    repo = demo + (f'<a class="btn" href="{esc(app["repo"])}" rel="noopener">{ICONS["github"]}{s("apps.repo")}</a>'
+                   if app.get("repo") else "")
+    return f"""      <article class="app-panel app--{aid}{' is-current' if current else ''}" id="app-{aid}" data-app="{aid}" aria-labelledby="{aid}-name" data-companions-ignore>
+        <div class="app-body">
+          <div class="app-head">
+            <img class="app-icon" src="/assets/img/apps/{esc(app['icon'])}" alt="" width="64" height="64">
+            <div><h2 id="{aid}-name">{esc(app['name'])}</h2><p class="tagline">{esc(text['tagline'])}</p></div>
+          </div>
+          <ul class="points">{points}</ul>
+          {f'<div class="app-actions">{action}{repo}</div>' if action or repo else ''}
+        </div>
+        {shots(app, s)}
+      </article>"""
+
+
 def page_apps(lang: str, s: Strings, site: dict, apps: list[dict]) -> str:
-    cards = []
-    for app in apps:
-        text = app["text"][lang]
-        points = "".join(f"<li>{esc(p)}</li>" for p in text["points"])
-        if app["availability"] == "request":
-            action = (f'<a class="btn primary accent" href="{esc(request_link(app, site, lang))}">{s("apps.request")}'
-                      f'{ICONS["arrow"]}</a>')
-        elif app["availability"] == "showcase":
-            action = ""          # shown on the page, no way to ask for it
-        else:
-            raise BuildError(f"apps.json: {app['id']} has an unknown availability '{app['availability']}'")
-        demo = (f'<a class="btn" href="{esc(app["demo"])}" rel="noopener">{s("apps.demo")}{ICONS["external"]}</a>'
-                if app.get("demo") else "")
-        repo = demo + (f'<a class="btn" href="{esc(app["repo"])}" rel="noopener">{ICONS["github"]}{s("apps.repo")}</a>'
-                       if app.get("repo") else "")
-        cards.append(f"""  <article class="card app app--{esc(app['id'])}" id="{esc(app['id'])}" aria-labelledby="{esc(app['id'])}-name">
-    {shots(app, s)}
-    <div class="app-body">
-      <div class="app-head">
-        <img class="app-icon" src="/assets/img/apps/{esc(app['icon'])}" alt="" width="64" height="64">
-        <div><h2 id="{esc(app['id'])}-name">{esc(app['name'])}</h2><p class="tagline">{esc(text['tagline'])}</p></div>
-      </div>
-      <ul class="points">{points}</ul>
-      {f'<div class="app-actions">{action}{repo}</div>' if action or repo else ''}
-    </div>
-  </article>""")
-    # data-flow-column: the background line travels beside the cards, not behind them (static/js/flow.js).
+    """A row of small cards, one per app, and below it the chosen app's details (Patrik, 2026-11-01). static/js/apps.js
+    makes the row WAI-ARIA tabs: the first app is chosen at the start, or the one the address names (/en/apps/#empire).
+    Without scripts the row is hidden and every app's details show, one below another (site.css, html.js).
+    The details' ids are app-<id>, not <id>, so an address like #empire chooses the app without scrolling the page."""
+    tabs = "\n".join(app_tab(app, lang, i == 0) for i, app in enumerate(apps))
+    details = "\n".join(app_details(app, s, site, lang, i == 0) for i, app in enumerate(apps))
+    # The companions start on what stays put whichever app is chosen (site.json companions.pages.apps): the lead, the
+    # title and the cards. data-companions-surface makes the lead's top edge a place to stand (the embed's hint: a
+    # paragraph has no edge of its own); right of the title there is room above it at every window size.
+    # data-flow-column: the background line travels beside the row and the details, not behind them (flow.js).
     return f"""<main class="apps">
   <header class="page-head">
     <h1>{s('apps.title')}</h1>
-    <p class="lead">{s('apps.lead')}</p>
+    <p class="lead" data-companions-surface>{s('apps.lead')}</p>
   </header>
-  <div class="app-list" data-flow-column>
-{chr(10).join(cards)}
+  <div class="app-browser" data-flow-column>
+    <div class="app-tabs" aria-label="{s('apps.choose')}">
+{tabs}
+    </div>
+    <div class="app-stage card">
+{details}
+    </div>
   </div>
   <p class="apps-note">{s('apps.requestNote')} <a href="{esc(site['links']['appsPrivacy'][lang])}">{s('apps.privacy')}</a></p>
 </main>"""
@@ -532,6 +562,7 @@ def build() -> list[str]:
         write(PAGES["apps"][lang], layout(lang, "apps", s, site, title=s("meta.appsTitle"),
                                           description=s("meta.appsDescription"),
                                           body=page_apps(lang, s, site, apps), extra_css=apps_css_url,
+                                          extra_js="js/apps.js",
                                           companions=companions_for("apps", lang, s, site)))
         for which in ("imprint", "privacy"):
             write(PAGES[which][lang], layout(lang, which, s, site, title=s(f"meta.{which}Title"),

@@ -22,14 +22,21 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
   per look at the top of `site.css`). **Dark is the default** for every first visit, whatever the system says (Patrik,
   2026-10-26). Behind every page drifts one calm line of light (`static/js/flow.js`, colours `--flow-*` per look): keep
   it slow, steady and faint, never a show. It does not follow the pointer (it made it fast and jerky); it turns at most
-  20°/s within a fixed speed range. A page can mark its content `data-flow-column` (the apps' cards) to keep the line
-  beside it, with a longer trail. Light and dark are the Ares apps' look (Aresium's website, `empire-ios`
-  Shared/Design): glass cards, Space Grotesk, ink accents, a faint red and blue light. Red is red and gold: a
-  wine-black wall lit crimson, gold-edged glass, the name in the Empire's gold text with one shine. Simple, clean and
+  20°/s within a fixed speed range. A page can mark its content `data-flow-column` (the apps page's cards and details)
+  to keep the line beside it, with a longer trail. Light and dark are the Ares apps' look (Aresium's website,
+  `empire-ios` Shared/Design): glass cards, Space Grotesk, ink accents, a faint red and blue light. Red is red and gold:
+  a wine-black wall lit crimson, gold-edged glass, the name in the Empire's gold text with one shine. Simple, clean and
   professional first (Patrik, 2026-10-26); the apps bring their own accents. A new colour gets a token in all three.
 - **Layout of the home page** (Patrik, 2026-10-26): name and intro top left, three large tiles across the middle
   (iPhone apps, GitHub, LinkedIn), the projects small at the bottom. No separate companions page: a companion says
   "Customize us!" and opens the menu.
+- **Layout of the apps page** (Patrik, 2026-11-01): one row of small cards, one per app (icon, name in its accent,
+  tagline), the requestable apps first (Aresium, Arestemis, Ares Empire, then Arestoteles, Aresus: the order of
+  `apps.json`); a click shows that app's details right below the row, on the same page, not in a popup: its two iPhones
+  beside its text (above it on a phone). Tabs for keyboards and screen readers (`static/js/apps.js`), the address
+  names the app (`/en/apps/#empire`) without new history entries; without scripts every app's details show, one below
+  another. The details are `data-companions-ignore`: the companions start and stay on what never changes when another
+  app is chosen (the lead, the cards).
 - **Default companions per page** (`content/site.json` → `companions`, Patrik 2026-10-31): only the companions' own
   designs (critters, mythology), never brands (Clawd, Clippy, apps, games, Minecraft); each page its own set (home:
   Ares in his golden skin, Pippin the hedgehog and Mallow the ghost; apps: three others), each starting on a fixed

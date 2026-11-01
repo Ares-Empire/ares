@@ -18,6 +18,9 @@
   };
 
   apply();
+  // Scripts run: site.css lays out what they enhance (the apps page's tabs, static/js/apps.js) from the first frame
+  // instead of jumping once they have run. Without scripts, html has no "js" and the page shows everything plainly.
+  root.classList.add('js');
   document.addEventListener('DOMContentLoaded', () => {
     apply();
     for (const b of document.querySelectorAll('[data-look]')) {
