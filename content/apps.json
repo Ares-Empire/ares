@@ -1,5 +1,5 @@
 {
-  "_comment": "The apps on /apps, in the order of the page's row of cards (the requestable ones first, Patrik 2026-11-01; the home page's icon stack follows it too); the first is chosen when the page opens. availability: request (a Request access button) or showcase (shown, no button). request: where the button goes, an address per language, when the app has its own contact form (Aresium's on aresium.de); without it, the Ares Empire's general form (site.json links.contact). repo: the GitHub URL once the code is public, else null. demo: a page to try it without an account (Aresium's /demo), else absent. shots: for each look of the site, [front, back] pictures from empire-ios/showcase/<id>/ (import them with tools/import-showcase.py); a look without its own pair uses dark's. Accents are the apps' own (empire-ios Shared/Design: AppAccent; Aresium's red).",
+  "_comment": "The apps on /apps, in the order of the page's row of cards (the requestable ones first, Patrik 2026-11-01; the home page's icon stack follows it too); the first is chosen when the page opens. availability: request (a Request access button) or showcase (shown, no button). request: where the button goes, an address per language: the app's own contact page with Get the app chosen (Aresium's on aresium.de, Arestemis's and the Ares Empire's on www.ares-empire.de, 2026-11-01); without it, the Ares Empire's contact page (site.json links.contact). repo: the GitHub URL once the code is public, else null. demo: a page to try it without an account (Aresium's /demo), else absent. shots: for each look of the site, [front, back] pictures from empire-ios/showcase/<id>/ (import them with tools/import-showcase.py); a look without its own pair uses dark's. Accents are the apps' own (empire-ios Shared/Design: AppAccent; Aresium's red).",
   "apps": [
     {
       "id": "aresium",
@@ -58,6 +58,10 @@
         "dark": "#A996FF"
       },
       "availability": "request",
+      "request": {
+        "en": "https://www.ares-empire.de/arestemis/contact?topic=access",
+        "de": "https://www.ares-empire.de/arestemis/kontakt?topic=access"
+      },
       "repo": null,
       "shots": {
         "light": [
@@ -97,6 +101,10 @@
         "dark": "#E9C86B"
       },
       "availability": "request",
+      "request": {
+        "en": "https://www.ares-empire.de/contact?topic=access",
+        "de": "https://www.ares-empire.de/kontakt?topic=access"
+      },
       "repo": null,
       "shots": {
         "light": [

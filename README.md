@@ -18,7 +18,7 @@ languages.
 |---|---|
 | `content/site.json` | The owner (imprint and policy read it from here), links, whether the site is public, the companions shown by default. |
 | `content/strings.en.json`, `strings.de.json` | Every text on the site. Both files must have the same keys: the build fails otherwise. |
-| `content/apps.json` | The apps page: each app's text in both languages, its accent, whether others can request it and where (the app's own contact form, else the Ares Empire's), its repo once public, its screenshots. |
+| `content/apps.json` | The apps page: each app's text in both languages, its accent, whether others can request it and where (the app's own contact page on Get the app, else the Ares Empire's), its repo once public, its screenshots. |
 | `content/legal/` | Imprint and privacy policy, one file per language, with `{{placeholders}}` filled from `site.json`. |
 | `static/` | CSS, the look switcher (`js/theme.js`), the background line (`js/flow.js`), the apps page's cards (`js/apps.js`), the companions' bubble and menu (`js/companions.js`), the font, images, favicon. Copied to `/assets/`. |
 | `static/img/apps/<app>/` | The apps' pictures, imported from empire-ios's showcase by `tools/import-showcase.py` (`SOURCE` names the commit). |

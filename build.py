@@ -293,8 +293,8 @@ def shots(app: dict, s: Strings) -> str:
 
 def request_link(app: dict, site: dict, lang: str) -> str:
     """Where an app's Request access button goes: the app's own contact form when it has one (apps.json "request", an
-    address per language; Aresium's on aresium.de since 2026-10-30), else the Ares Empire's general contact form
-    (site.json links.contact)."""
+    address per language; Aresium's on aresium.de since 2026-10-30, Arestemis's and the Ares Empire's on
+    www.ares-empire.de since 2026-11-01), else the Ares Empire's contact page (site.json links.contact)."""
     links = app.get("request") or site["links"]["contact"]
     if not isinstance(links, dict) or not all(str(links.get(l, "")).startswith("https://") for l in LANGS):
         raise BuildError(f"apps.json: {app['id']}'s request needs an https address for each language ({', '.join(LANGS)})")
