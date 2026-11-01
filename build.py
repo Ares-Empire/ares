@@ -318,14 +318,14 @@ def app_details(app: dict, s: Strings, site: dict, lang: str, current: bool) -> 
     text = app["text"][lang]
     points = "".join(f"<li>{esc(p)}</li>" for p in text["points"])
     if app["availability"] == "request":
-        # data-pass-look: static/js/apps.js adds this page's look to the address, so the app's form opens in it
+        # data-pass-look: static/js/apps.js adds this page's look to the address, so the app's form (and demo) opens in it
         action = (f'<a class="btn primary accent" href="{esc(request_link(app, site, lang))}" data-pass-look>{s("apps.request")}'
                   f'{ICONS["arrow"]}</a>')
     elif app["availability"] == "showcase":
         action = ""          # shown on the page, no way to ask for it
     else:
         raise BuildError(f"apps.json: {app['id']} has an unknown availability '{app['availability']}'")
-    demo = (f'<a class="btn" href="{esc(app["demo"])}" rel="noopener">{s("apps.demo")}{ICONS["external"]}</a>'
+    demo = (f'<a class="btn" href="{esc(app["demo"])}" rel="noopener" data-pass-look>{s("apps.demo")}{ICONS["external"]}</a>'
             if app.get("demo") else "")
     repo = demo + (f'<a class="btn" href="{esc(app["repo"])}" rel="noopener">{ICONS["github"]}{s("apps.repo")}</a>'
                    if app.get("repo") else "")
