@@ -318,7 +318,8 @@ def app_details(app: dict, s: Strings, site: dict, lang: str, current: bool) -> 
     text = app["text"][lang]
     points = "".join(f"<li>{esc(p)}</li>" for p in text["points"])
     if app["availability"] == "request":
-        action = (f'<a class="btn primary accent" href="{esc(request_link(app, site, lang))}">{s("apps.request")}'
+        # data-pass-look: static/js/apps.js adds this page's look to the address, so the app's form opens in it
+        action = (f'<a class="btn primary accent" href="{esc(request_link(app, site, lang))}" data-pass-look>{s("apps.request")}'
                   f'{ICONS["arrow"]}</a>')
     elif app["availability"] == "showcase":
         action = ""          # shown on the page, no way to ask for it
