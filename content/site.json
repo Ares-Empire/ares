@@ -1,12 +1,6 @@
 {
   "domain": "patrikbreeck.com",
   "public": true,
-  "owner": {
-    "name": "Patrik Breeck",
-    "street": "REDACTED-ADDRESS",
-    "city": "85748 Garching",
-    "email": "REDACTED-EMAIL"
-  },
   "links": {
     "github": "https://github.com/carlsenares",
     "linkedin": "https://www.linkedin.com/in/patrik-breeck/",

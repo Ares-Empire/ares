@@ -16,10 +16,10 @@ languages.
 
 | Path | What it is |
 |---|---|
-| `content/site.json` | The owner (imprint and policy read it from here), links, whether the site is public, the companions shown by default. |
+| `content/site.json` | Links, whether the site is public, the companions shown by default. |
 | `content/strings.en.json`, `strings.de.json` | Every text on the site. Both files must have the same keys: the build fails otherwise. |
 | `content/apps.json` | The apps page: each app's text in both languages, its accent, whether others can request it and where (the app's own contact page on Get the app, else the Ares Empire's), its repo once public, its screenshots. |
-| `content/legal/` | Imprint and privacy policy, one file per language, with `{{placeholders}}` filled from `site.json`. |
+| `content/legal/` | Imprint and privacy policy, one file per language, with `{{placeholders}}` filled from `site.json` and the external owner file. |
 | `static/` | CSS, the look switcher (`js/theme.js`), the background line (`js/flow.js`), the apps page's cards (`js/apps.js`), the companions' bubble and menu (`js/companions.js`), the font, images, favicon. Copied to `/assets/`. |
 | `static/img/apps/<app>/` | The apps' pictures, imported from empire-ios's showcase by `tools/import-showcase.py` (`SOURCE` names the commit). |
 | `vendor/companions` | The companions repo as a git submodule, pinned to one commit. Its website embed is built into one file, `/companions/companions.min.js`. |
@@ -42,11 +42,21 @@ npm ci --prefix vendor/companions/web      # once, and after the submodule moves
 python3 build.py                           # makes dist/ (needs Node 22 or newer; the server has 24)
 python3 tools/serve.py                     # serves dist/ with the server's CSP; open http://127.0.0.1:8790/en/
 node tools/shoot.mjs /tmp/shots            # screenshots of the local build (needs Playwright; the server has it)
+python3 tools/check-owner.py               # owner-file checks and a full build, using made-up details only
 ./deploy.sh                                # on the server: build and put it live
 ```
 
-The build stops, with the reason, when a text exists in only one language, a placeholder is left unfilled, a page
-would load something from another host, or Node or esbuild is missing (it says what to run). Look at the pages through
+The owner's name, postal address and email live in one owner file per machine, shared with ares-empire and aresium,
+never in a repo (including the Ares Empire legal pages). `build.py` reads `$ARES_OWNER_FILE` if set, else
+`~/.config/ares-empire/owner.json`. On the server, `deploy.sh` runs as root and uses
+`/root/.config/ares-empire/owner.json` by default. The JSON object must contain exactly `name`, `street`, `city`
+(postcode and town in one line) and `email`, each a non-empty string. These details fill the legal pages and the
+companions' credits contact. For tests and checks, point `ARES_OWNER_FILE` at a made-up file; never print real details.
+`tools/check-owner.py` creates its own temporary made-up file and leaves a build with those details in `dist/`.
+
+The build stops, with the reason, when the owner file is missing or invalid, a text exists in only one language,
+a placeholder is left unfilled, a page would load something from another host, or Node or esbuild is missing
+(it says what to run). Look at the pages through
 `tools/serve.py`: the browser then reports anything the server's Content-Security-Policy would block.
 
 ### The apps page

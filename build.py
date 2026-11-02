@@ -3,9 +3,10 @@
 
     python3 build.py      build dist/ (exit 1, with the reasons, if anything is wrong)
 
-Everything a page says comes from content/: site.json (owner, links, settings), strings.<lang>.json
+Everything a page says comes from content/: site.json (links, settings), strings.<lang>.json
 (every interface text, the same keys in both languages), apps.json (the apps page) and legal/ (imprint
-and privacy policy, with {{placeholders}} filled from site.json). static/ is copied to /assets/. The
+and privacy policy, with {{placeholders}} filled from site.json and the external owner file:
+$ARES_OWNER_FILE, or ~/.config/ares-empire/owner.json). static/ is copied to /assets/. The
 companions come from vendor/companions (a git submodule pinned to one commit): its website embed is built
 into /companions/companions.min.js and the folder /companions/companions/ next to it (each companion's own
 file), with Node and esbuild (`npm ci --prefix vendor/companions/web` once); Node is used for nothing else.
@@ -19,6 +20,7 @@ from __future__ import annotations
 import hashlib
 import html
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -56,6 +58,35 @@ def load_json(path: Path):
         return json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as e:
         raise BuildError(f"{path.relative_to(ROOT)}: {e}") from e
+
+
+def load_owner() -> dict[str, str]:
+    """Private details shared with ares-empire and aresium; errors never include their contents."""
+    path = Path(os.environ.get("ARES_OWNER_FILE", "~/.config/ares-empire/owner.json")).expanduser()
+
+    def unique_keys(pairs):
+        data = {}
+        for key, value in pairs:
+            if key in data:
+                raise BuildError(f"{path}: duplicate JSON object keys")
+            data[key] = value
+        return data
+
+    try:
+        owner = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=unique_keys)
+    except OSError as e:
+        raise BuildError(f"{path}: cannot read owner file ({e.strerror})") from None
+    except UnicodeError:
+        raise BuildError(f"{path}: owner file must be UTF-8") from None
+    except json.JSONDecodeError as e:
+        raise BuildError(f"{path}: invalid JSON (line {e.lineno}, column {e.colno})") from None
+    keys = ("name", "street", "city", "email")
+    if not isinstance(owner, dict) or set(owner) != set(keys):
+        raise BuildError(f"{path}: expected a JSON object with exactly the keys: {', '.join(keys)}")
+    for key in keys:
+        if not isinstance(owner[key], str) or not owner[key].strip():
+            raise BuildError(f"{path}: {key} must be a non-empty string")
+    return owner
 
 
 def esc(value) -> str:
@@ -370,12 +401,12 @@ def page_apps(lang: str, s: Strings, site: dict, apps: list[dict]) -> str:
 </main>"""
 
 
-def page_legal(lang: str, which: str, site: dict) -> str:
+def page_legal(lang: str, which: str, site: dict, owner: dict[str, str]) -> str:
     text = (CONTENT / "legal" / LEGAL[(which, lang)]).read_text(encoding="utf-8")
     contact = site["links"]["contact"][lang]
     values = {
-        "owner.name": site["owner"]["name"], "owner.street": site["owner"]["street"],
-        "owner.city": site["owner"]["city"], "owner.email": site["owner"]["email"],
+        "owner.name": owner["name"], "owner.street": owner["street"],
+        "owner.city": owner["city"], "owner.email": owner["email"],
         "links.contact": contact, "links.contactLabel": re.sub(r"^https://", "", contact),
         "links.appsPrivacy": site["links"]["appsPrivacy"][lang], "domain": site["domain"],
     }
@@ -456,7 +487,7 @@ def companions_repo_url() -> str:
     return m.group(1).removesuffix(".git").rstrip("/")
 
 
-def build_credits(lang: str, s: Strings, site: dict) -> str:
+def build_credits(lang: str, s: Strings, site: dict, owner: dict[str, str]) -> str:
     """The companions' credits for the menu's Credits view, from their own file (vendor/companions/NOTICE.md: whose
     characters and logos they draw, the licenses that ask for credit wherever they are shown, the Minecraft notice),
     so the view always matches the pinned companions. Written as dist/assets/companions-credits.<lang>.json, blocks
@@ -467,7 +498,7 @@ def build_credits(lang: str, s: Strings, site: dict) -> str:
     Markdown beyond that fails the build instead of showing up raw. Returns the file's address."""
     repo = companions_repo_url()
     public = bool(site["repos"]["companions"])
-    email = site["owner"]["email"]
+    email = owner["email"]
 
     def spans(text: str) -> list[dict]:
         out, pos = [], 0
@@ -624,6 +655,7 @@ SITE_DOMAIN = ""   # the site's own domain, from site.json (set in build)
 
 
 def build() -> list[str]:
+    owner = load_owner()
     STRINGS.update(load_strings())
     site = load_json(CONTENT / "site.json")
     global SITE_DOMAIN
@@ -641,7 +673,7 @@ def build() -> list[str]:
 
     for lang in LANGS:
         s = STRINGS[lang]
-        credits = build_credits(lang, s, site)
+        credits = build_credits(lang, s, site, owner)
         write(PAGES["home"][lang], layout(lang, "home", s, site, title=s("meta.homeTitle"),
                                           description=s("meta.homeDescription"),
                                           body=page_home(lang, s, site, count, apps),
@@ -653,7 +685,7 @@ def build() -> list[str]:
                                           companions=companions_for("apps", lang, s, site, credits)))
         for which in ("imprint", "privacy"):
             write(PAGES[which][lang], layout(lang, which, s, site, title=s(f"meta.{which}Title"),
-                                             description=s(f"meta.{which}Title"), body=page_legal(lang, which, site)))
+                                             description=s(f"meta.{which}Title"), body=page_legal(lang, which, site, owner)))
 
     robots = "User-agent: *\nAllow: /\n" if site["public"] else "User-agent: *\nDisallow: /\n"
     (DIST / "robots.txt").write_text(robots, encoding="utf-8")

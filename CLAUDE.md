@@ -15,9 +15,11 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
   sends a Content-Security-Policy (`'self'` only, no inline scripts or styles): put styles in CSS files, data for
   scripts in `<script type="application/json">`, and set styles from JS through `element.style`.
 - **Legal facts come from `ares-empire/docs/PRIVACY.md`** (host netcup, journald 14 days, BayLDA). The owner's name,
-  address and email live once here, in `content/site.json`, and also in the Ares Empire pages (`ares-empire/web/legal/`):
-  a change goes to both. If the site starts processing something new (a form, an embed, a log), the privacy policy
-  changes first, in both languages.
+  address and email live in the external owner file, shared with ares-empire and aresium, never in a repo:
+  `$ARES_OWNER_FILE` if set, else `~/.config/ares-empire/owner.json`. It contains exactly `name`, `street`, `city`
+  (postcode and town in one line) and `email`, all non-empty strings. Use made-up details through `ARES_OWNER_FILE`
+  for tests and checks (`python3 tools/check-owner.py`); never print real details. If the site starts processing
+  something new (a form, an embed, a log), the privacy policy changes first, in both languages.
 - **Looks:** three, switched in the header (`static/js/theme.js` sets `data-theme` on `<html>`; every colour is a token
   per look at the top of `site.css`). **Dark is the default** for every first visit, whatever the system says (Patrik,
   2026-10-26). Behind every page drifts one calm line of light (`static/js/flow.js`, colours `--flow-*` per look): keep
