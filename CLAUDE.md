@@ -39,7 +39,8 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
   app is chosen (the lead, the cards).
 - **Default companions per page** (`content/site.json` → `companions`, Patrik 2026-10-31): only the companions' own
   designs (critters, mythology), never brands (Clawd, Clippy, apps, games, Minecraft); each page its own set (home:
-  Ares in his golden skin, Pippin the hedgehog and Mallow the ghost; apps: three others), each starting on a fixed
+  Ares in his golden skin, Bit (the companions' face, Patrik 2026-11-02) and Pippin the hedgehog, on phones Ares
+  and Bit; apps: three others), each starting on a fixed
   spot (`spots`). A click on a companion opens the menu on it. Scrolling never knocks them down (`scroll: "ride"`,
   2026-11-01): they stay on their spot and leave the screen with it. Mallow drifting down and vanishing to reappear
   elsewhere is its own way to travel, not a bug.
