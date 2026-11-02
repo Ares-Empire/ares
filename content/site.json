@@ -7,6 +7,11 @@
     "contact": { "en": "https://www.ares-empire.de/contact", "de": "https://www.ares-empire.de/kontakt" },
     "appsPrivacy": { "en": "https://www.ares-empire.de/privacy", "de": "https://www.ares-empire.de/datenschutz" }
   },
+  "person": {
+    "_comment": "Facts for the home page's schema.org profile data (build.py profile_data); the name comes from the owner file.",
+    "worksFor": "Munich Re",
+    "university": "Technical University of Munich"
+  },
   "repos": {
     "companions": null,
     "aresos": null

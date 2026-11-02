@@ -27,6 +27,7 @@ languages.
 | `deploy.sh` | Builds and swaps the result into `/srv/ares`, which Caddy serves. |
 | `tools/serve.py` | Serves `dist/` locally with the Content-Security-Policy the server sends. |
 | `tools/shoot.mjs` | Screenshots of pages (desktop and phone, in every look), for checking a change without a screen. |
+| `tools/og-card.mjs`, `tools/og/card.html` | The link preview pictures (`static/img/og/card.<lang>.png`, 1200×630), drawn from the owner file's name, `home.short` and the domain, with Bit by the companions' own code. Run it with a build served (`tools/serve.py`) when the name or the line changes. |
 | `tools/import-showcase.py` | Copies the app pictures `content/apps.json` names from `empire-ios/showcase/`, sized for the web (needs Pillow). |
 
 Pages: `/en/`, `/en/apps/`, `/en/imprint/`, `/en/privacy/` and `/de/`, `/de/apps/`, `/de/impressum/`,
@@ -130,6 +131,17 @@ git add vendor/companions && git commit -m "Companions: <commit>"
 
 When the embed's API changes, `static/js/companions.js` follows it. Something the menu needs and the API lacks goes
 into the embed, not into a copy here.
+
+### Link previews and search
+
+Every page's head carries the link preview (Open Graph and `twitter:card`): its title and description from
+`strings.*.json` → `meta`, and the card of its language (`static/img/og/`, `tools/og-card.mjs`; the build stops when
+one is missing). LinkedIn keeps a link's preview once it has been shared: after changing the card, ask it to read the
+page again with its Post Inspector. The home page adds schema.org data (`profile_data`: the site, the person, the
+LinkedIn and GitHub profiles as the same person, `site.json` → `person`). `sitemap.xml` lists the home and apps pages
+in both languages, and `robots.txt` points to it once the site is public. The imprint and the privacy policy are
+`noindex, follow` (Patrik, 2026-11-02): reachable from every page, but not listed in search results, so the street
+address doesn't come up under the name.
 
 ## Ideas
 

@@ -53,6 +53,8 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
   outlines around companions, etc.) are in `vendor/companions/CLAUDE.md`.
 - **Credits for the companions** (Patrik, 2026-11-02): the menu's foot has the fan-project line and a Credits view,
   made by `build.py` from `vendor/companions/NOTICE.md` (never a copy here: it changes with the companions).
+- **Link previews and search** (Patrik, 2026-11-02): every page has the preview tags and its language's card
+  (`tools/og-card.mjs`, run again when the name or the short line changes); imprint and privacy stay `noindex`.
 - After a change: `python3 build.py`, serve `dist/` with `python3 tools/serve.py` (it sends the server's CSP), run
   `node tools/shoot.mjs <scratch dir>` and look at the pictures (phone and desktop, light and dark, German too; no
   console errors or CSP violations), then `./deploy.sh`.

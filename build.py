@@ -47,6 +47,14 @@ LEGAL = {
     ("imprint", "en"): "imprint.en.html", ("imprint", "de"): "impressum.de.html",
     ("privacy", "en"): "privacy.en.html", ("privacy", "de"): "datenschutz.de.html",
 }
+LEGAL_PAGES = ("imprint", "privacy")   # kept out of search results once public (layout)
+# The pages listed in the sitemap: what someone searching should land on.
+SITEMAP_PAGES = ("home", "apps")
+
+
+def card_path(lang: str) -> str:
+    """The link preview picture of a language, under static/ (made by tools/og-card.mjs)."""
+    return f"img/og/card.{lang}.png"
 
 
 class BuildError(Exception):
@@ -170,11 +178,38 @@ def asset_url(name: str) -> str:
 
 
 def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, description: str, body: str,
-           companions: dict | None = None, extra_css: str = "", extra_js: str = "") -> str:
+           companions: dict | None = None, extra_css: str = "", extra_js: str = "", profile: dict | None = None) -> str:
     other = "de" if lang == "en" else "en"
     others = STRINGS[other]
     base = f"https://{site['domain']}"
-    robots = "" if site["public"] else '<meta name="robots" content="noindex, nofollow">\n'
+    url = f"{base}{PAGES[page][lang]}"
+    # Before launch nothing is indexed. After it the imprint and the privacy policy still stay out of search results,
+    # so the street address isn't listed under the name; their links are followed (Patrik, 2026-11-02).
+    if not site["public"]:
+        robots = '<meta name="robots" content="noindex, nofollow">\n'
+    elif page in LEGAL_PAGES:
+        robots = '<meta name="robots" content="noindex, follow">\n'
+    else:
+        robots = ""
+    # The link preview (Open Graph, read by LinkedIn, WhatsApp, iMessage, Slack and others; X reads the twitter:
+    # card): the page's title and description and the card of its language (static/img/og/, tools/og-card.mjs).
+    locales = {"en": "en_US", "de": "de_DE"}
+    preview = (f'<meta property="og:type" content="website">\n'
+               f'<meta property="og:site_name" content="{s("meta.homeTitle")}">\n'
+               f'<meta property="og:title" content="{title}">\n'
+               f'<meta property="og:description" content="{description}">\n'
+               f'<meta property="og:url" content="{url}">\n'
+               f'<meta property="og:locale" content="{locales[lang]}">\n'
+               f'<meta property="og:locale:alternate" content="{locales[other]}">\n'
+               f'<meta property="og:image" content="{base}{asset_url(card_path(lang))}">\n'
+               f'<meta property="og:image:type" content="image/png">\n'
+               f'<meta property="og:image:width" content="1200">\n'
+               f'<meta property="og:image:height" content="630">\n'
+               f'<meta property="og:image:alt" content="{s("meta.cardAlt")}">\n'
+               f'<meta name="twitter:card" content="summary_large_image">\n')
+    if profile:   # schema.org data for search engines: whose site this is (home page only)
+        preview += ('<script type="application/ld+json">'
+                    + json.dumps(profile, ensure_ascii=False).replace("</", "<\\/") + '</script>\n')
     alternates = "".join(f'<link rel="alternate" hreflang="{l}" href="{base}{PAGES[page][l]}">\n' for l in LANGS)
     css = f'<link rel="stylesheet" href="{asset_url("css/site.css")}">\n'
     if extra_css:
@@ -206,9 +241,9 @@ def layout(lang: str, page: str, s: Strings, site: dict, *, title: str, descript
 <meta name="description" content="{description}">
 {robots}<meta name="color-scheme" content="dark light">
 <meta name="theme-color" content="#050507">
-<link rel="canonical" href="{base}{PAGES[page][lang]}">
+<link rel="canonical" href="{url}">
 {alternates}<link rel="alternate" hreflang="x-default" href="{base}/">
-<link rel="icon" href="{versioned("/favicon.svg", STATIC / "favicon.svg")}" type="image/svg+xml">
+{preview}<link rel="icon" href="{versioned("/favicon.svg", STATIC / "favicon.svg")}" type="image/svg+xml">
 <link rel="apple-touch-icon" href="{versioned("/apple-touch-icon.png", STATIC / "apple-touch-icon.png")}">
 <link rel="preload" href="/assets/fonts/SpaceGrotesk-Variable.ttf" as="font" type="font/ttf" crossorigin>
 <script src="{asset_url("js/theme.js")}"></script>
@@ -621,6 +656,37 @@ def check_companion_defaults(site: dict) -> None:
         raise BuildError("\n  ".join(["site.json's companions don't match the companions:", *problems]))
 
 
+def profile_data(lang: str, s: Strings, site: dict, owner: dict[str, str]) -> dict:
+    """schema.org data for the home page: the site and the person it belongs to, with the profiles elsewhere that are
+    the same person (sameAs), so a search for the name can bring them together. Facts from site.json `person`."""
+    base = f"https://{site['domain']}"
+    person = site["person"]
+    return {
+        "@context": "https://schema.org",
+        "@graph": [
+            {"@type": "WebSite", "@id": f"{base}/#website", "url": f"{base}/", "name": owner["name"],
+             "inLanguage": list(LANGS), "publisher": {"@id": f"{base}/#person"}},
+            {"@type": "Person", "@id": f"{base}/#person", "name": owner["name"], "url": f"{base}/",
+             "description": s.get("meta.homeDescription"),
+             "sameAs": [site["links"]["linkedin"], site["links"]["github"]],
+             "worksFor": {"@type": "Organization", "name": person["worksFor"]},
+             "affiliation": {"@type": "CollegeOrUniversity", "name": person["university"]}},
+        ],
+    }
+
+
+def sitemap(site: dict) -> str:
+    """sitemap.xml: the pages worth landing on from a search, each with its other language (hreflang)."""
+    base = f"https://{site['domain']}"
+    urls = []
+    for page in SITEMAP_PAGES:
+        links = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{l}" href="{base}{PAGES[page][l]}"/>' for l in LANGS)
+        urls += [f"  <url>\n    <loc>{base}{PAGES[page][lang]}</loc>{links}\n  </url>" for lang in LANGS]
+    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+            + "\n".join(urls) + "\n</urlset>\n")
+
+
 def companions_for(page: str, lang: str, s: Strings, site: dict, credits: str) -> dict | None:
     """What the page's companion script gets (static/js/companions.js), or None for a page without companions.
     `credits` is the address of the menu's credits (build_credits)."""
@@ -664,6 +730,10 @@ def build() -> list[str]:
     if DIST.exists():
         shutil.rmtree(DIST)
     shutil.copytree(STATIC, DIST / "assets", ignore=shutil.ignore_patterns("favicon.svg", "apple-touch-icon.png"))
+    missing = [card_path(lang) for lang in LANGS if not (STATIC / card_path(lang)).is_file()]
+    if missing:
+        raise BuildError(f"the link preview pictures are missing ({', '.join(missing)}): serve a build "
+                         "(python3 tools/serve.py) and run `node tools/og-card.mjs`")
     for name in ("favicon.svg", "apple-touch-icon.png"):
         shutil.copy2(STATIC / name, DIST / name)
     count = build_companions()
@@ -675,6 +745,7 @@ def build() -> list[str]:
         s = STRINGS[lang]
         credits = build_credits(lang, s, site, owner)
         write(PAGES["home"][lang], layout(lang, "home", s, site, title=s("meta.homeTitle"),
+                                          profile=profile_data(lang, s, site, owner),
                                           description=s("meta.homeDescription"),
                                           body=page_home(lang, s, site, count, apps),
                                           companions=companions_for("home", lang, s, site, credits)))
@@ -687,7 +758,9 @@ def build() -> list[str]:
             write(PAGES[which][lang], layout(lang, which, s, site, title=s(f"meta.{which}Title"),
                                              description=s(f"meta.{which}Title"), body=page_legal(lang, which, site, owner)))
 
-    robots = "User-agent: *\nAllow: /\n" if site["public"] else "User-agent: *\nDisallow: /\n"
+    robots = (f"User-agent: *\nAllow: /\n\nSitemap: https://{site['domain']}/sitemap.xml\n" if site["public"]
+              else "User-agent: *\nDisallow: /\n")
+    (DIST / "sitemap.xml").write_text(sitemap(site), encoding="utf-8")
     (DIST / "robots.txt").write_text(robots, encoding="utf-8")
 
     warnings = []

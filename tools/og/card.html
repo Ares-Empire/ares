@@ -1,0 +1,107 @@
+<!doctype html>
+<!-- The link preview picture (tools/og-card.mjs fills the {{placeholders}} and takes the picture): 1200×630, the site's
+     dark look (site.css: its wall, its red light from the top and blue from the bottom right, the line of light in its
+     colours), the name and the short line centred so a square crop (WhatsApp) keeps them, and Bit standing on the name
+     as the companions stand on it on the site, drawn by the companions' own code. -->
+<html lang="{{lang}}">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face {
+    font-family: "Space Grotesk";
+    src: url("/assets/fonts/SpaceGrotesk-Variable.ttf") format("truetype");
+    font-weight: 300 700;
+  }
+  html, body { margin: 0; }
+  body {
+    width: 1200px; height: 630px; overflow: hidden; position: relative;
+    background:
+      radial-gradient(72% 60% at 50% -14%, rgba(196,48,36,0.30), transparent 62%),
+      radial-gradient(58% 56% at 94% 122%, rgba(52,92,170,0.26), transparent 58%),
+      #050507;
+    font-family: "Space Grotesk", sans-serif; color: #f6f7fb;
+    -webkit-font-smoothing: antialiased;
+  }
+  svg.flow { position: absolute; inset: 0; }
+  .card {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding-bottom: 18px; text-align: center;
+  }
+  h1 { margin: 0; font-size: 108px; font-weight: 600; letter-spacing: -0.035em; line-height: 1; }
+  .line { margin: 28px 0 0; font-size: 36px; font-weight: 400; color: #b3b9c6; letter-spacing: -0.005em; }
+  .domain {
+    position: absolute; left: 0; right: 0; bottom: 46px; text-align: center;
+    font-size: 19px; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: #848b99;
+  }
+  canvas.bit { position: absolute; image-rendering: pixelated; }
+</style>
+</head>
+<body data-bit="{{bit}}">
+  <svg class="flow" viewBox="0 0 1200 630" aria-hidden="true">
+    <defs>
+      <linearGradient id="flow" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#7c5cff" stop-opacity="0"/>
+        <stop offset="0.25" stop-color="#7c5cff" stop-opacity="0.45"/>
+        <stop offset="0.65" stop-color="#d9465a" stop-opacity="0.6"/>
+        <stop offset="1" stop-color="#e9c86b" stop-opacity="0.9"/>
+      </linearGradient>
+      <filter id="soft" x="-10%" y="-50%" width="120%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
+      <radialGradient id="head">
+        <stop offset="0" stop-color="#fff2c8" stop-opacity="0.95"/>
+        <stop offset="0.35" stop-color="#e9c86b" stop-opacity="0.45"/>
+        <stop offset="1" stop-color="#e9c86b" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <path d="M -60 588 C 200 640, 420 642, 640 614 S 960 560, 1075 498" fill="none" stroke="url(#flow)" stroke-width="12" opacity="0.35" filter="url(#soft)"/>
+    <path d="M -60 588 C 200 640, 420 642, 640 614 S 960 560, 1075 498" fill="none" stroke="url(#flow)" stroke-width="2.4" stroke-linecap="round"/>
+    <circle cx="1075" cy="498" r="26" fill="url(#head)"/>
+  </svg>
+  <main class="card">
+    <h1 id="name">{{name}}</h1>
+    <p class="line">{{line}}</p>
+  </main>
+  <p class="domain">{{domain}}</p>
+  <script src="/companions/companions.min.js" data-autostart="false" data-settings-button="false"></script>
+  <script>
+    // Bit on the name, standing on the capital of its last word (the B of Breeck): its feet on the top of the
+    // capitals, as companions stand on a heading on the site. Drawn with the companions' own portrait (whole pixels),
+    // then placed by where its feet are.
+    async function bit() {
+      if (document.body.dataset.bit !== 'yes') return;
+      const C = window.Companions;
+      await C.start({ companions: ['bit'] });
+      C.setOptions({ motion: 'hidden' });
+      const canvas = document.createElement('canvas');
+      canvas.className = 'bit';
+      canvas.width = canvas.height = 120;
+      C.drawPortrait(canvas, 'bit');
+      const px = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+      let feet = 0;
+      for (let y = canvas.height - 1; y >= 0 && !feet; y--) {
+        for (let x = 0; x < canvas.width; x++) if (px[(y * canvas.width + x) * 4 + 3] > 0) { feet = y + 1; break; }
+      }
+      const name = document.getElementById('name');
+      // The top of the capitals: the line box's baseline minus the font's cap height.
+      const probe = document.createElement('span');
+      probe.style.display = 'inline-block';
+      probe.style.height = '0';
+      name.append(probe);
+      const baseline = probe.getBoundingClientRect().top;
+      probe.remove();
+      const measure = document.createElement('canvas').getContext('2d');
+      measure.font = getComputedStyle(name).font;
+      const capTop = baseline - measure.measureText('H').actualBoundingBoxAscent;
+      const text = name.firstChild, at = text.data.lastIndexOf(' ') + 1, letter = document.createRange();
+      letter.setStart(text, at);
+      letter.setEnd(text, at + 1);
+      const cap = letter.getBoundingClientRect();
+      canvas.style.left = `${Math.round(cap.left + cap.width / 2 - canvas.width / 2)}px`;
+      canvas.style.top = `${Math.round(capTop - feet)}px`;
+      document.body.append(canvas);
+    }
+    document.fonts.ready.then(bit).then(
+      () => { document.body.dataset.ready = 'yes'; },
+      e => { console.error('card:', e); document.body.dataset.ready = 'failed'; });
+  </script>
+</body>
+</html>

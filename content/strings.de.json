@@ -10,7 +10,8 @@
     "appsTitle": "Ares-Apps · Patrik Breeck",
     "appsDescription": "Native iPhone-Apps von Patrik Breeck, gebaut in Swift, mit Servern in der EU.",
     "imprintTitle": "Impressum · Patrik Breeck",
-    "privacyTitle": "Datenschutzerklärung · Patrik Breeck"
+    "privacyTitle": "Datenschutzerklärung · Patrik Breeck",
+    "cardAlt": "Patrik Breeck, Wirtschaftsinformatik an der TUM · Munich Re, patrikbreeck.com"
   },
   "nav": {
     "home": "Patrik Breeck"
