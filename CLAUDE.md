@@ -1,6 +1,6 @@
 # Notes for Claude sessions
 
-Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not an Empire service: no login, no API.
+Read `README.md`, then `docs/DEVELOPMENT.md` (how the site is built). This is Patrik's personal site (patrikbreeck.com), not an Empire service: no login, no API.
 
 ## Rules
 
