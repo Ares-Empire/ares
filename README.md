@@ -5,8 +5,8 @@ links to GitHub and LinkedIn, and a few of his pixel companions living on the pa
 companions appear and how they look ("Customize us!"). English and German, in three looks chosen in the header:
 dark (the default), light, and red and gold. A calm line of light drifts behind every page in the look's colours.
 
-**Status: in development.** Live on this server behind a password (Caddy basic auth, user `ares`), not indexed.
-"Going public" below lists what changes on launch.
+**Status: public** since 2 November 2026 (before that behind a password, not indexed; "Going public" below lists
+what changed on launch).
 
 Privacy is part of the design: no cookies, no analytics, nothing loaded from other hosts (fonts included), and
 the companions' settings stay in the visitor's browser. The imprint and privacy policy are on the site in both

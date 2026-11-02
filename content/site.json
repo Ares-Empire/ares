@@ -1,6 +1,6 @@
 {
   "domain": "patrikbreeck.com",
-  "public": false,
+  "public": true,
   "owner": {
     "name": "Patrik Breeck",
     "street": "REDACTED-ADDRESS",
