@@ -77,17 +77,17 @@
         "en": {
           "tagline": "Searches on autopilot.",
           "points": [
-            "Flats, items for sale and deals, from WG-Gesucht to eBay and Vinted",
-            "Page watches: any web page, a change described in plain words",
-            "An AI checks every new find against the whole search; matches arrive instantly"
+            "Finds and filters flat and item offers across platforms",
+            "Monitors any web page for price changes or updates",
+            "Filters and alerts customizable for every search"
           ]
         },
         "de": {
           "tagline": "Suchen auf Autopilot.",
           "points": [
-            "Wohnungen, Gebrauchtes und Deals, von WG-Gesucht bis eBay und Vinted",
-            "Seitenwächter: jede Webseite, eine Änderung in Worten beschrieben",
-            "Eine KI prüft jeden neuen Fund gegen die ganze Suche; Treffer kommen sofort"
+            "Findet und filtert Wohnungs- und Artikelangebote auf mehreren Plattformen",
+            "Überwacht beliebige Webseiten auf Preisänderungen oder Updates",
+            "Filter und Benachrichtigungen für jede Suche anpassbar"
           ]
         }
       }
