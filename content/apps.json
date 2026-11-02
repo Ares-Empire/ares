@@ -33,6 +33,7 @@
         "en": {
           "tagline": "Personal finance.",
           "points": [
+            "Completely local: data stays on the iPhone, no account needed",
             "Transactions sorted into categories automatically",
             "Clear charts by month and category",
             "Image processing for receipts"
@@ -41,6 +42,7 @@
         "de": {
           "tagline": "Persönliche Finanzen.",
           "points": [
+            "Komplett lokal: Daten bleiben auf dem iPhone, kein Konto nötig",
             "Buchungen automatisch in Kategorien sortiert",
             "Klare Diagramme nach Monat und Kategorie",
             "Bildverarbeitung für Belege"
