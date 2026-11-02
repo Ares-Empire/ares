@@ -27,7 +27,7 @@ languages.
 | `deploy.sh` | Builds and swaps the result into `/srv/ares`, which Caddy serves. |
 | `tools/serve.py` | Serves `dist/` locally with the Content-Security-Policy the server sends. |
 | `tools/shoot.mjs` | Screenshots of pages (desktop and phone, in every look), for checking a change without a screen. |
-| `tools/og-card.mjs`, `tools/og/card.html` | The link preview pictures (`static/img/og/card.<lang>.png`, 1200×630), drawn from the owner file's name, `home.short` and the domain, with Bit by the companions' own code. Run it with a build served (`tools/serve.py`) when the name or the line changes. |
+| `tools/og-card.mjs`, `tools/og/card.html` | The link preview pictures (`static/img/og/card.<lang>.png`, 1200×630): the owner file's name on two lines, `meta.cardLine1` and `cardLine2`, the domain, all inside the middle square so small square previews show them whole (the tool stops when a line is too wide). Run it with a build served (`tools/serve.py`) when the name or the lines change. |
 | `tools/import-showcase.py` | Copies the app pictures `content/apps.json` names from `empire-ios/showcase/`, sized for the web (needs Pillow). |
 
 Pages: `/en/`, `/en/apps/`, `/en/imprint/`, `/en/privacy/` and `/de/`, `/de/apps/`, `/de/impressum/`,

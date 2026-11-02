@@ -11,7 +11,9 @@
     "appsDescription": "Native iPhone apps by Patrik Breeck, built in Swift and backed by servers in the EU.",
     "imprintTitle": "Imprint · Patrik Breeck",
     "privacyTitle": "Privacy policy · Patrik Breeck",
-    "cardAlt": "Patrik Breeck, Information Systems at TUM · Munich Re, patrikbreeck.com"
+    "cardLine1": "Information Systems",
+    "cardLine2": "TUM · Munich Re",
+    "cardAlt": "Patrik Breeck: Information Systems, TUM · Munich Re, patrikbreeck.com"
   },
   "nav": {
     "home": "Patrik Breeck"
@@ -36,7 +38,7 @@
     "aresosName": "AresOS",
     "aresos": "AI-native operating system that runs the whole computer from inside Minecraft.",
     "appsName": "Ares apps",
-    "apps": "Native iPhone apps for finance, flat finding, a personal wiki and infrastructure monitoring, on one shared account.",
+    "apps": "Native iPhone apps for finance, automated searches, a personal wiki and infrastructure monitoring, on one shared account.",
     "companionsName": "Companions",
     "companions": "{count} animated pixel characters for any screen, each with its own moves, skins and outfits."
   },

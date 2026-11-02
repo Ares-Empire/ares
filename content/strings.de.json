@@ -11,7 +11,9 @@
     "appsDescription": "Native iPhone-Apps von Patrik Breeck, gebaut in Swift, mit Servern in der EU.",
     "imprintTitle": "Impressum · Patrik Breeck",
     "privacyTitle": "Datenschutzerklärung · Patrik Breeck",
-    "cardAlt": "Patrik Breeck, Wirtschaftsinformatik an der TUM · Munich Re, patrikbreeck.com"
+    "cardLine1": "Wirtschaftsinformatik",
+    "cardLine2": "TUM · Munich Re",
+    "cardAlt": "Patrik Breeck: Wirtschaftsinformatik, TUM · Munich Re, patrikbreeck.com"
   },
   "nav": {
     "home": "Patrik Breeck"
@@ -36,7 +38,7 @@
     "aresosName": "AresOS",
     "aresos": "KI-natives Betriebssystem, das den ganzen Computer aus Minecraft heraus steuert.",
     "appsName": "Ares-Apps",
-    "apps": "Native iPhone-Apps für Finanzen, Wohnungssuche, ein persönliches Wiki und Infrastruktur-Monitoring, mit einem gemeinsamen Konto.",
+    "apps": "Native iPhone-Apps für Finanzen, automatische Suchen, ein persönliches Wiki und Infrastruktur-Monitoring, mit einem gemeinsamen Konto.",
     "companionsName": "Companions",
     "companions": "{count} animierte Pixel-Figuren für jeden Bildschirm, jede mit eigenen Moves, Skins und Outfits."
   },
