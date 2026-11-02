@@ -358,6 +358,19 @@ dialog.cm::backdrop { background: rgba(5,5,7,.12); }
 .cm-tile[aria-pressed="true"]::after { content: ""; position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; border-radius: 50%; background: #34c77b; }
 .cm-foot { margin-top: 26px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-3); }
 .cm-foot button { margin-top: 12px; }
+.cm-fan { margin-top: 10px; }
+.cm-foot .cm-link { margin-top: 0; }
+.cm-link, .cm-credits a { color: var(--ink-2); text-decoration: underline; text-underline-offset: 2px; }
+.cm-link:hover, .cm-credits a:hover { color: var(--ink); }
+/* The credits view: the companions' own credits, small and quiet, in place of the menu until Back. */
+.cm-back { margin: 8px 0 6px; }
+.cm-credits-text p, .cm-credits-text li { font-size: 13px; line-height: 1.55; color: var(--ink-2); overflow-wrap: anywhere; }
+.cm-credits-text p { margin-top: 12px; }
+.cm-credits-text .eyebrow { margin-top: 20px; }
+.cm-credits-text ul { margin: 10px 0 0; padding-left: 18px; }
+.cm-credits-text li + li { margin-top: 6px; }
+.cm-credits-text strong { color: var(--ink); font-weight: 600; }
+.cm-credits-text .cm-hint { color: var(--ink-3); font-style: italic; }
 
 /* ---------- smaller screens ---------- */
 /* The row scrolls sideways where the cards don't all fit, from edge to edge of the window, a card at a time; the

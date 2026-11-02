@@ -49,6 +49,8 @@ Read `README.md` first. This is Patrik's personal site (patrikbreeck.com), not a
   `vendor/companions/web/README.md`): `static/js/companions.js` holds the bubble and the menu and never imports engine
   files or copies engine code. What the menu needs and the API lacks goes into the embed. Their rules for looks (no
   outlines around companions, etc.) are in `vendor/companions/CLAUDE.md`.
+- **Credits for the companions** (Patrik, 2026-11-02): the menu's foot has the fan-project line and a Credits view,
+  made by `build.py` from `vendor/companions/NOTICE.md` (never a copy here: it changes with the companions).
 - After a change: `python3 build.py`, serve `dist/` with `python3 tools/serve.py` (it sends the server's CSP), run
   `node tools/shoot.mjs <scratch dir>` and look at the pictures (phone and desktop, light and dark, German too; no
   console errors or CSP violations), then `./deploy.sh`.

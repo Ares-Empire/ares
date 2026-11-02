@@ -89,6 +89,13 @@
     "reset": "Start over",
     "footer": "Companions: animated pixel characters for any screen, in development. The code will be published on GitHub.",
     "repo": "Companions on GitHub",
+    "fan": "Companions is a free fan project. Characters from games, apps and brands belong to their owners and are not endorsed by them.",
+    "credits": "Credits",
+    "back": "Back",
+    "creditsNote": "",
+    "creditsRemoval": "A character or logo is removed quickly at its owner's request: an email to {email} is enough.",
+    "creditsLoading": "Loading the credits…",
+    "creditsFailed": "The credits could not be loaded.",
     "groups": {
       "Originals": "Originals",
       "Apps": "Apps",

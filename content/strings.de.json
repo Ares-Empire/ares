@@ -89,6 +89,13 @@
     "reset": "Zurücksetzen",
     "footer": "Companions: animierte Pixel-Figuren für jeden Bildschirm, in Entwicklung. Der Code wird auf GitHub veröffentlicht.",
     "repo": "Companions auf GitHub",
+    "fan": "Companions ist ein kostenloses Fan-Projekt. Figuren aus Spielen, Apps und Marken gehören ihren Inhabern und sind nicht von ihnen autorisiert.",
+    "credits": "Credits",
+    "back": "Zurück",
+    "creditsNote": "Die Angaben stammen aus dem Companions-Projekt und sind auf Englisch.",
+    "creditsRemoval": "Eine Figur oder ein Logo wird auf Wunsch der Rechteinhaber schnell entfernt: Eine E-Mail an {email} genügt.",
+    "creditsLoading": "Credits werden geladen …",
+    "creditsFailed": "Die Credits konnten nicht geladen werden.",
     "groups": {
       "Originals": "Originale",
       "Apps": "Apps",

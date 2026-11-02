@@ -177,6 +177,11 @@ function buildMenu() {
   const remove = el('button', { type: 'button', className: 'btn cm-remove', textContent: T.remove || 'Remove' });
   remove.addEventListener('click', () => { if (running && chosen) C.setOnScreen(chosen, false); });
   const repo = config.repo ? el('a', { href: config.repo, rel: 'noopener', target: '_blank', textContent: T.repo || 'GitHub' }) : null;
+  const title = el('h2', { id: 'cm-title', textContent: T.title || 'Companions' });
+  const creditsOpener = el('button', { type: 'button', className: 'linkish cm-link', textContent: T.credits || 'Credits' });
+  creditsOpener.addEventListener('click', () => showView('credits'));
+  const back = el('button', { type: 'button', className: 'btn cm-back', textContent: `← ${T.back || 'Back'}` });
+  back.addEventListener('click', () => showView('main'));
   const parts = {
     here: el('div', { className: 'cm-here' }),
     empty: el('p', { className: 'cm-empty', textContent: T.none || '' }),
@@ -187,22 +192,82 @@ function buildMenu() {
     groups: el('div', {}),
   };
   parts.looksSection = el('section', { className: 'cm-section' }, parts.looksTitle, parts.looks, remove);
-  dialog.append(
-    el('div', { className: 'cm-head' }, el('h2', { id: 'cm-title', textContent: T.title || 'Companions' }), close),
-    el('div', { className: 'cm-body' },
-      el('p', { className: 'cm-intro', textContent: T.intro || '' }),
-      el('section', { className: 'cm-section' }, el('h3', { className: 'eyebrow', textContent: T.here || '' }), parts.here, parts.empty, parts.motion),
-      parts.looksSection,
-      el('section', { className: 'cm-section' }, el('h3', { className: 'eyebrow', textContent: T.add || '' }), parts.groups),
-      el('div', { className: 'cm-foot' }, el('p', {}, T.footer || '', repo ? ' ' : '', repo), reset)),
-  );
+  // Two views in one dialog: the menu, and the credits (whose characters these are), which replace it until Back.
+  const main = el('div', { className: 'cm-body' },
+    el('p', { className: 'cm-intro', textContent: T.intro || '' }),
+    el('section', { className: 'cm-section' }, el('h3', { className: 'eyebrow', textContent: T.here || '' }), parts.here, parts.empty, parts.motion),
+    parts.looksSection,
+    el('section', { className: 'cm-section' }, el('h3', { className: 'eyebrow', textContent: T.add || '' }), parts.groups),
+    el('div', { className: 'cm-foot' },
+      el('p', {}, T.footer || '', repo ? ' ' : '', repo),
+      el('p', { className: 'cm-fan' }, T.fan || '', ' ', creditsOpener),
+      reset));
+  const creditsText = el('div', { className: 'cm-credits-text' });
+  const credits = el('div', { className: 'cm-body cm-credits', hidden: true }, back, creditsText);
+  dialog.append(el('div', { className: 'cm-head' }, title, close), main, credits);
   // A click on the dimmed page beside the sheet closes it, but only when the press began there too (as the embed's own
   // sheet does): a tap on a companion opens the menu, and the click the phone sends after that tap lands beside it.
   let pressedBeside = false;
   dialog.addEventListener('pointerdown', e => { pressedBeside = e.target === dialog; });
   dialog.addEventListener('click', e => { if (pressedBeside && e.target === dialog) dialog.close(); pressedBeside = false; });
   document.body.append(dialog);
-  return { dialog, parts };
+  return { dialog, parts, views: { main, credits }, title, back, creditsOpener, creditsText };
+}
+
+// ---------- the credits ----------
+// Whose characters and logos the companions draw, the licenses that ask for credit wherever they are shown, and the
+// Minecraft notice: the companions' own credits (vendor/companions/NOTICE.md), which build.py turns into blocks of
+// text for this page's language (config.credits). Loaded the first time the view opens; again after a failure.
+let creditBlocks = null;      // null, 'loading', 'failed' or the blocks
+function needCredits() {
+  if (creditBlocks !== null && creditBlocks !== 'failed') return;
+  creditBlocks = 'loading';
+  fetch(config.credits)
+    .then(r => (r.ok ? r.json() : Promise.reject(new Error(`the credits: HTTP ${r.status}`))))
+    .then(blocks => { creditBlocks = blocks; }, e => { creditBlocks = 'failed'; console.error('companions:', e); })
+    .finally(renderCredits);
+}
+
+// A span of text, bold or a link (outside links open in a new tab, as everywhere on the site).
+function inline(spans) {
+  return spans.map(span => {
+    let node = document.createTextNode(span.text);
+    if (span.href) {
+      node = el('a', { href: span.href }, node);
+      if (/^https?:/.test(span.href)) Object.assign(node, { target: '_blank', rel: 'noopener' });
+    }
+    return span.bold ? el('strong', {}, node) : node;
+  });
+}
+
+function renderCredits() {
+  if (!menu) return;
+  const box = menu.creditsText;
+  if (creditBlocks === 'loading' || creditBlocks === null) {
+    box.replaceChildren(el('p', { className: 'cm-empty', textContent: T.creditsLoading || '' }));
+  } else if (creditBlocks === 'failed') {
+    box.replaceChildren(el('p', { className: 'cm-empty', textContent: T.creditsFailed || '' }));
+  } else {
+    box.replaceChildren(
+      ...(T.creditsNote ? [el('p', { className: 'cm-hint', textContent: T.creditsNote })] : []),
+      ...creditBlocks.map(block => (block.ul ? el('ul', {}, ...block.ul.map(item => el('li', {}, ...inline(item))))
+        : block.h ? el('h3', { className: 'eyebrow' }, ...inline(block.h))
+        : el('p', {}, ...inline(block.p)))));
+  }
+}
+
+// Switches the dialog between the menu and the credits; focus goes to Back, or back to the Credits link.
+function showView(name, { focus = true } = {}) {
+  const onCredits = name === 'credits';
+  menu.views.main.hidden = onCredits;
+  menu.views.credits.hidden = !onCredits;
+  menu.title.textContent = onCredits ? (T.credits || 'Credits') : (T.title || 'Companions');
+  if (onCredits) {
+    needCredits();
+    renderCredits();
+    menu.views.credits.scrollTop = 0;
+  }
+  if (focus) (onCredits ? menu.back : menu.creditsOpener).focus();
 }
 
 function renderMenu() {
@@ -276,6 +341,7 @@ function openMenu(id) {
   if (id) chosen = id;
   store.set(KEY_SEEN, '1');
   menu ??= buildMenu();
+  showView('main', { focus: false });     // a click on a companion, or opening it again, starts on the menu
   if (!menu.dialog.open) menu.dialog.showModal();
   renderMenu();
 }

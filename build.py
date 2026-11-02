@@ -444,6 +444,90 @@ def build_companions() -> int:
     return len(load_json(index))
 
 
+# Markdown the credits know: **bold** and [text](https://…) inside paragraphs and "- " lists.
+CREDITS_INLINE = re.compile(r"\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)\s]+)\)")
+
+
+def companions_repo_url() -> str:
+    """The companions' repository, from .gitmodules (the submodule's own address)."""
+    m = re.search(r'path = vendor/companions\s+url = (\S+)', (ROOT / ".gitmodules").read_text(encoding="utf-8"))
+    if not m:
+        raise BuildError(".gitmodules has no address for vendor/companions")
+    return m.group(1).removesuffix(".git").rstrip("/")
+
+
+def build_credits(lang: str, s: Strings, site: dict) -> str:
+    """The companions' credits for the menu's Credits view, from their own file (vendor/companions/NOTICE.md: whose
+    characters and logos they draw, the licenses that ask for credit wherever they are shown, the Minecraft notice),
+    so the view always matches the pinned companions. Written as dist/assets/companions-credits.<lang>.json, blocks
+    the menu draws as text: {"p": spans}, {"h": spans} or {"ul": [spans, …]}, a span being {"text", "bold"?, "href"?}.
+    The file's own title is left out (the view has its own). While the companions' repository is private
+    (site.json repos.companions is null) its links lead nowhere: they become plain text, and the paragraph that asks
+    owners to open an issue there gives way to the site's own line (menu.creditsRemoval, with the owner's email).
+    Markdown beyond that fails the build instead of showing up raw. Returns the file's address."""
+    repo = companions_repo_url()
+    public = bool(site["repos"]["companions"])
+    email = site["owner"]["email"]
+
+    def spans(text: str) -> list[dict]:
+        out, pos = [], 0
+        for m in CREDITS_INLINE.finditer(text):
+            if m.start() > pos:
+                out.append({"text": text[pos:m.start()]})
+            if m.group(1) is not None:
+                out.append({"text": m.group(1), "bold": True})
+            else:
+                label, url = m.group(2), m.group(3)
+                usable = url.startswith("https://") and (public or not url.startswith(repo))
+                out.append({"text": label, "href": url} if usable else {"text": label})
+            pos = m.end()
+        if pos < len(text):
+            out.append({"text": text[pos:]})
+        for span in out:
+            if re.search(r"\*\*|__|`|\]\(|<[a-zA-Z/]", span["text"]):
+                raise BuildError(f"vendor/companions/NOTICE.md: markdown the credits view can't show: {span['text'][:80]!r}")
+        return out
+
+    def removal() -> dict:
+        before, _, after = s.get("menu.creditsRemoval").partition("{email}")   # plain text: the page sets it as text
+        return {"p": [{"text": before}, {"text": email, "href": f"mailto:{email}"}, {"text": after}]}
+
+    blocks, removal_placed = [], False
+    text = (COMPANIONS / "NOTICE.md").read_text(encoding="utf-8")
+    for chunk in re.split(r"\n\s*\n", text.strip()):
+        lines = chunk.strip().splitlines()
+        if lines[0].startswith("# ") and len(lines) == 1:
+            continue                                   # the file's title
+        if lines[0].startswith("#"):
+            if len(lines) > 1:
+                raise BuildError(f"vendor/companions/NOTICE.md: a heading with text right under it: {lines[0]!r}")
+            blocks.append({"h": spans(lines[0].lstrip("#").strip())})
+        elif lines[0].startswith("- "):
+            items = []
+            for line in lines:
+                if line.startswith("- "):
+                    items.append(line[2:].strip())
+                elif line.startswith(" "):
+                    items[-1] += " " + line.strip()
+                else:
+                    raise BuildError(f"vendor/companions/NOTICE.md: a list with a line that isn't an item: {line!r}")
+            blocks.append({"ul": [spans(item) for item in items]})
+        else:
+            paragraph = " ".join(line.strip() for line in lines)
+            if not public and f"{repo}/issues" in paragraph:
+                blocks.append(removal())
+                removal_placed = True
+            else:
+                blocks.append({"p": spans(paragraph)})
+    if not public and not removal_placed:
+        blocks.append(removal())
+
+    data = json.dumps(blocks, ensure_ascii=False, separators=(",", ":"))
+    out = DIST / "assets" / f"companions-credits.{lang}.json"
+    out.write_text(data, encoding="utf-8")
+    return versioned(f"/assets/{out.name}", out)
+
+
 def spot_problems(where: str, cid: str, spot: dict, coming: list[str]) -> list[str]:
     """What is wrong with one starting spot in site.json (companions.pages.<page>.spots.<desktop|phone>.<id>)."""
     problems = []
@@ -506,13 +590,14 @@ def check_companion_defaults(site: dict) -> None:
         raise BuildError("\n  ".join(["site.json's companions don't match the companions:", *problems]))
 
 
-def companions_for(page: str, lang: str, s: Strings, site: dict) -> dict | None:
-    """What the page's companion script gets (static/js/companions.js), or None for a page without companions."""
+def companions_for(page: str, lang: str, s: Strings, site: dict, credits: str) -> dict | None:
+    """What the page's companion script gets (static/js/companions.js), or None for a page without companions.
+    `credits` is the address of the menu's credits (build_credits)."""
     conf = site["companions"]
     lists = conf["pages"].get(page)
     if not lists:
         return None
-    return {"lang": lang, "menu": s.get("menu"), "repo": site["repos"]["companions"],
+    return {"lang": lang, "menu": s.get("menu"), "repo": site["repos"]["companions"], "credits": credits,
             "defaults": {"desktop": lists["desktop"], "phone": lists["phone"], "spots": lists.get("spots", {}),
                          "looks": conf.get("looks", {}), "scroll": conf.get("scroll", "fall")}}
 
@@ -556,15 +641,16 @@ def build() -> list[str]:
 
     for lang in LANGS:
         s = STRINGS[lang]
+        credits = build_credits(lang, s, site)
         write(PAGES["home"][lang], layout(lang, "home", s, site, title=s("meta.homeTitle"),
                                           description=s("meta.homeDescription"),
                                           body=page_home(lang, s, site, count, apps),
-                                          companions=companions_for("home", lang, s, site)))
+                                          companions=companions_for("home", lang, s, site, credits)))
         write(PAGES["apps"][lang], layout(lang, "apps", s, site, title=s("meta.appsTitle"),
                                           description=s("meta.appsDescription"),
                                           body=page_apps(lang, s, site, apps), extra_css=apps_css_url,
                                           extra_js="js/apps.js",
-                                          companions=companions_for("apps", lang, s, site)))
+                                          companions=companions_for("apps", lang, s, site, credits)))
         for which in ("imprint", "privacy"):
             write(PAGES[which][lang], layout(lang, which, s, site, title=s(f"meta.{which}Title"),
                                              description=s(f"meta.{which}Title"), body=page_legal(lang, which, site)))

@@ -101,6 +101,14 @@ button (the footer's). The visitor's choices are the embed's: localStorage under
 `companions.` (and `companions.menuSeen`, the site's), the Motion choice in sessionStorage for the visit; "Start over"
 removes them. Choices saved by the site's earlier host of its own (`companion.<id>`) are moved over once.
 
+The menu's foot says Companions is a free fan project whose characters from games, apps and brands belong to their
+owners (Patrik, 2026-11-02), with a Credits link: a view in place of the menu (Back returns) with the companions' own
+credits, `vendor/companions/NOTICE.md`, which some characters' licenses require wherever they are shown (the Go
+gopher and the Android robot under CC BY, the Minecraft notice). `build.py` (`build_credits`) turns that file into
+`/assets/companions-credits.<lang>.json`, loaded when the view first opens, so it follows the pinned companions by
+itself; the list stays English (the German view says so). While the companions' repo is private its links become
+plain text, and its "open a GitHub issue" paragraph gives way to `menu.creditsRemoval` with the owner's email.
+
 To use a newer companions version:
 
 ```sh
