@@ -65,6 +65,7 @@
         "de": "https://www.ares-empire.de/arestemis/kontakt?topic=access"
       },
       "repo": null,
+      "demo": "https://www.ares-empire.de/arestemis/demo/",
       "shots": {
         "light": [
           "02-listings-light",
@@ -80,7 +81,7 @@
           "tagline": "Searches on autopilot.",
           "points": [
             "Finds and filters flat and item offers across platforms",
-            "Monitors any web page for price changes or updates",
+            "Watches a product's price across shops, or any web page for a change",
             "Filters and alerts customizable for every search"
           ]
         },
@@ -88,7 +89,7 @@
           "tagline": "Suchen auf Autopilot.",
           "points": [
             "Findet und filtert Wohnungs- und Artikelangebote auf mehreren Plattformen",
-            "Überwacht beliebige Webseiten auf Preisänderungen oder Updates",
+            "Beobachtet den Preis eines Produkts über viele Shops hinweg oder beliebige Webseiten auf Änderungen",
             "Filter und Benachrichtigungen für jede Suche anpassbar"
           ]
         }
