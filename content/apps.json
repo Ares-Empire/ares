@@ -69,11 +69,11 @@
       "shots": {
         "light": [
           "02-listings-light",
-          "04-search-light"
+          "05-price-monitor-light"
         ],
         "dark": [
           "01-hunt-dark",
-          "03-listing-dark"
+          "06-new-search-dark"
         ]
       },
       "text": {
