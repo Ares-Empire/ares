@@ -61,3 +61,16 @@ python3 tools/serve.py                    # http://127.0.0.1:8790/en/
 The imprint and privacy policy need the site owner's name and address, which live in a small file outside the
 repository; `tools/check-owner.py` uses made-up ones. Everything else is in
 [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md): the layout, the apps page, the companions and the link previews.
+
+## Tests and CI
+
+GitHub Actions runs the **owner contract** on every push, pull request and manual start, without checking out
+submodules. The exact local command (Python standard library, invented owner details only) is:
+
+```sh
+python3 tools/check-owner.py OwnerChecks.test_override_and_default OwnerChecks.test_invalid_files OwnerChecks.test_unreadable_file OwnerChecks.test_legal_escaping
+```
+
+The full `python3 tools/check-owner.py` also runs `OwnerChecks.test_full_build_and_missing_file`. It stays local:
+first follow “Run it locally” to initialize the private companions submodule and install its public npm packages.
+GitHub CI has no private-repository access and does not build the full site.
