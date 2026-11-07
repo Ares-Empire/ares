@@ -74,8 +74,9 @@ function setUp() {
 
 // "Request access" leads to the app's own contact page (aresium.de, www.ares-empire.de), "Try the demo" to its demo;
 // both would open in the look remembered there. The links pass this page's look for the visit (?look=light or dark;
-// red and gold counts as dark), so they open in the look the visitor came from (appearance.js on those sites; the
-// Empire's demo has one look and ignores it; Patrik, 2026-11-01).
+// red and gold counts as dark), so they open in the look the visitor came from (appearance.js on Aresium's sites,
+// app/language.js in the Arestemis demo on arestemis.de; the Empire's demo has one look and ignores it; Patrik,
+// 2026-11-01).
 const passLook = () => {
   const look = document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
   for (const link of document.querySelectorAll('a[data-pass-look]')) {
