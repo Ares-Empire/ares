@@ -74,3 +74,15 @@ python3 tools/check-owner.py OwnerChecks.test_override_and_default OwnerChecks.t
 The full `python3 tools/check-owner.py` also runs `OwnerChecks.test_full_build_and_missing_file`. It stays local:
 first follow “Run it locally” to initialize the private companions submodule and install its public npm packages.
 GitHub CI has no private-repository access and does not build the full site.
+
+## License
+
+All rights reserved. The code is public to read, but it is not licensed for reuse: not the design, the texts or the
+pictures. Parts from others keep their own licences:
+
+- The companions in `vendor/companions` come from their own repository, under the PolyForm Noncommercial License
+  1.0.0. The characters from games, apps and brands among them belong to their owners, as the companions' `NOTICE.md`
+  lists (the site shows it under Credits in the companions' menu).
+- The font Space Grotesk in `static/fonts/`: SIL Open Font License 1.1, see
+  [OFL-SpaceGrotesk.txt](static/fonts/OFL-SpaceGrotesk.txt).
+- The GitHub and LinkedIn logos in `build.py` are trademarks of their owners.
