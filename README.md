@@ -80,9 +80,10 @@ GitHub CI has no private-repository access and does not build the full site.
 All rights reserved. The code is public to read, but it is not licensed for reuse: not the design, the texts or the
 pictures. Parts from others keep their own licences:
 
-- The companions in `vendor/companions` come from their own repository, under the PolyForm Noncommercial License
-  1.0.0. The characters from games, apps and brands among them belong to their owners, as the companions' `NOTICE.md`
-  lists (the site shows it under Credits in the companions' menu).
+- The companions in `vendor/companions` come from their own repository and carry its licence (the PolyForm
+  Noncommercial License 1.0.0 since 2026-11-08; the older commit pinned here was released under MIT). The characters
+  from games, apps and brands among them belong to their owners, as the companions' `NOTICE.md` lists (the site shows
+  it under Credits in the companions' menu).
 - The font Space Grotesk in `static/fonts/`: SIL Open Font License 1.1, see
   [OFL-SpaceGrotesk.txt](static/fonts/OFL-SpaceGrotesk.txt).
 - The GitHub and LinkedIn logos in `build.py` are trademarks of their owners.
